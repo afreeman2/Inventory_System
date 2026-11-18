@@ -1,0 +1,202 @@
+﻿{
+   "CodeGenerationMode": 6,
+   "ContextClassName": "Cont_maintContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "IrregularWords": null,
+   "MinimumProductVersion": "2.6.1604",
+   "ModelNamespace": null,
+   "OutputContextPath": "dbContext",
+   "OutputPath": "Models",
+   "PluralRules": null,
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Inventory_System",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "SingularRules": null,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[T_app_moniter]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Benef]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Branch]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Build]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[t_error]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Furniture]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_furniture_Class]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Furniture_List]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Furniture_Type]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_instu_Type]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_insu_Compny]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Inventory_Locations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Locations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Manage]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Observer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_OwnedPremises]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_OwnedPremises_Contrect]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_OwnedPremises_Insuc]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_OwnedPremises_Phones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_OwnedPremises_Power]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_OwnedPremises_Serivec]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_OwnedPremises_Water]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Phones_Building]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_RentalPremises]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_RentalPremises_Contrect]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_RentalPremises_Insuc]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_RentalPremises_Phones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_RentalPremises_Power]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_RentalPremises_Serivec]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_RentalPremises_Water]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Section]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Service_Compny]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Sevice_Compny_Type]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Sub_PHones_Building]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_SystemUser]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[V_fut]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[V_PHONE]",
+         "ObjectType": 3
+      },
+      {
+         "Name": "[dbo].[p_execute]",
+         "ObjectType": 1
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false,
+   "UseTypedTvpParameters": true
+}

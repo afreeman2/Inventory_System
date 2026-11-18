@@ -1,0 +1,78 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="MainWindows\MainWindow.Accounts.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\ssf Logo.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DevExpress.Wpf" Version="26.1.6" />
+    <PackageReference Include="DevExpress.Wpf.Core" Version="26.1.6" />
+    <PackageReference Include="DevExpress.Wpf.Grid.Core" Version="26.1.6" />
+    <PackageReference Include="DevExpress.Wpf.PdfViewer" Version="26.1.6" />
+    <PackageReference Include="DevExpress.Wpf.Reporting" Version="26.1.6" />
+    <PackageReference Include="DevExpress.Wpf.Themes.Win11Light" Version="26.1.6" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.11" />
+    <PackageReference Include="MahApps.Metro.IconPacks.BootstrapIcons" Version="6.2.1" />
+    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="6.2.1" />
+    <PackageReference Include="MahApps.Metro.IconPacks.MaterialDesign" Version="6.2.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.6" />
+    <PackageReference Include="TwainScanningCore" Version="1.4.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\ssf Logo.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Accounts\" />
+    <Folder Include="reports\" />
+    <Folder Include="support_Data\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="MainWindows\MainWindow.Accounts.cs" />
+  </ItemGroup>
+
+</Project>

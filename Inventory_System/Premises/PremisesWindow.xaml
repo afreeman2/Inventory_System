@@ -1,0 +1,219 @@
+<mah:MetroWindow x:Class="Inventory_System.Premises.PremisesWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+    xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
+    xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+    xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:conv="clr-namespace:Inventory_System.converts"
+    xmlns:vm="clr-namespace:Inventory_System.viewo_Model"
+    Title="بيانات المقرات" Width="920" Height="650" MinWidth="670" MinHeight="475"
+    WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip" WindowStyle="None"
+    AllowsTransparency="True" Background="Transparent" ShowTitleBar="False" BorderThickness="0"
+    GlowBrush="{x:Null}" FlowDirection="RightToLeft" FontFamily="Segoe UI" FontSize="14"
+    vm:RoundedWindowFrame.Enabled="True" dx:ThemeManager.ThemeName="Win11Light" Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown">
+    <mah:MetroWindow.Resources>
+        <!-- يرث الجدول المحمي تنسيق DevExpress المعتمد في الواجهة. -->
+        <Style TargetType="vm:AccessibleGridControl" BasedOn="{StaticResource {x:Type dxg:GridControl}}"/>
+        <!-- أيقونة في كل خانة مع تمييز القيمة المدخلة والتحقق المحلي عند الحفظ. -->
+        <Style x:Key="Premises.Input" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,7"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True"/>
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource errorTemplateSilverlightStyle}"/>
+        </Style>
+        <Style x:Key="Premises.Field" TargetType="Border" BasedOn="{StaticResource Dcms.IconField}">
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsKeyboardFocusWithin" Value="True"/>
+                        <Condition Property="vm:InputFieldState.HasValue" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="White"/>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+    </mah:MetroWindow.Resources>
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <!-- مسودة التعديل مستقلة عن خانات الإضافة والصف المحدد. -->
+            <mah:Flyout x:Name="EditFlyout" Style="{StaticResource Maintenance.Flyout}" IsOpenChanged="EditFlyout_Changed">
+                <Border Style="{StaticResource Maintenance.Flyout.Card}" HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom" Width="580">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="16,10">
+                            <DockPanel>
+                                <dx:SimpleButton DockPanel.Dock="Right" Click="CancelEdit_Click" Style="{StaticResource Dcms.WindowButton}"
+                                                 ToolTip="إغلاق التعديل" AutomationProperties.Name="إغلاق التعديل">
+                                    <icons:PackIconMaterial Kind="Close" Width="17" Height="17"/>
+                                </dx:SimpleButton>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <icons:PackIconMaterial Kind="PencilOutline" Width="20" Height="20" Foreground="{StaticResource Maintenance.Flyout.HeaderIcon}"/>
+                                    <TextBlock Text="تعديل بيانات المقر" Margin="9,0" FontSize="18" FontWeight="SemiBold" Foreground="White"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                        <StackPanel x:Name="EditFields" Margin="18">
+                            <TextBlock Text="اسم المقر" Margin="0,0,0,4" FontWeight="SemiBold"/>
+                            <Border Style="{StaticResource Premises.Field}">
+                                <DockPanel Margin="6,0">
+                                    <icons:PackIconMaterial DockPanel.Dock="Left" Kind="OfficeBuildingOutline" Foreground="{StaticResource Workspace.Primary}"
+                                                            Width="18" Height="18" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                    <TextBox x:Name="EditName" MaxLength="100" Style="{StaticResource Premises.Input}" AutomationProperties.Name="اسم المقر عند التعديل"
+                                             PreviewKeyDown="MoveToAddress_PreviewKeyDown"/>
+                                </DockPanel>
+                            </Border>
+                            <TextBlock Text="العنوان" Margin="0,12,0,4" FontWeight="SemiBold"/>
+                            <Border Style="{StaticResource Premises.Field}">
+                                <DockPanel Margin="6,0">
+                                    <icons:PackIconMaterial DockPanel.Dock="Left" Kind="MapMarkerOutline" Foreground="{StaticResource Workspace.Primary}"
+                                                            Width="18" Height="18" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                    <TextBox x:Name="EditAddress" MaxLength="150" Style="{StaticResource Premises.Input}" AutomationProperties.Name="عنوان المقر عند التعديل"
+                                             PreviewKeyDown="SaveOnEnter_PreviewKeyDown"/>
+                                </DockPanel>
+                            </Border>
+                            <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                                <dx:SimpleButton Click="SaveEdit_Click" Style="{StaticResource Dcms.PrimaryButton}">
+                                    <StackPanel Orientation="Horizontal"><icons:PackIconMaterial Kind="ContentSaveOutline" Margin="0,0,7,0" VerticalAlignment="Center"/><TextBlock Text="حفظ التعديل"/></StackPanel>
+                                </dx:SimpleButton>
+                                <dx:SimpleButton Click="CancelEdit_Click" Style="{StaticResource Dcms.SecondaryButton}" Margin="8,0,0,0">
+                                    <StackPanel Orientation="Horizontal"><icons:PackIconMaterial Kind="Close" Margin="0,0,7,0" VerticalAlignment="Center"/><TextBlock Text="إلغاء"/></StackPanel>
+                                </dx:SimpleButton>
+                            </StackPanel>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+            </mah:Flyout>
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+    <Border CornerRadius="18" Background="{StaticResource Workspace.Canvas}" BorderBrush="{StaticResource Workspace.Line}" BorderThickness="1">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="18,12">
+                <DockPanel>
+                    <dx:SimpleButton DockPanel.Dock="Right" Click="Close_Click" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق النافذة"
+                                     AutomationProperties.Name="إغلاق النافذة">
+                        <icons:PackIconMaterial Kind="Close" Width="18" Height="18"/>
+                    </dx:SimpleButton>
+                    <StackPanel Orientation="Horizontal" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                        <icons:PackIconMaterial x:Name="HeadingIcon" Kind="OfficeBuildingOutline" Width="27" Height="27" Foreground="{StaticResource Maintenance.Flyout.HeaderIcon}"
+                                                VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <StackPanel>
+                            <TextBlock x:Name="Heading" Foreground="White" FontSize="21" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="Subheading" Foreground="#D6E2F3" FontSize="13" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <TextBlock DockPanel.Dock="Bottom" x:Name="Status" Margin="18,0,18,12" Foreground="{StaticResource Workspace.Muted}" TextWrapping="Wrap"/>
+            <Grid Margin="16">
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <Border x:Name="AddPanel" Background="{StaticResource Workspace.Surface}" BorderBrush="{StaticResource Workspace.Line}"
+                        BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="إضافة مقر" FontWeight="SemiBold" Foreground="{StaticResource Workspace.Ink}" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="3*"/><ColumnDefinition Width="4*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="اسم المقر" Margin="0,0,0,4"/>
+                                <Border Style="{StaticResource Premises.Field}">
+                                    <DockPanel Margin="6,0">
+                                        <icons:PackIconMaterial DockPanel.Dock="Left" Kind="OfficeBuildingOutline" Width="18" Height="18"
+                                                                Foreground="{StaticResource Workspace.Primary}" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                        <TextBox x:Name="NewName" Style="{StaticResource Premises.Input}" MaxLength="100" AutomationProperties.Name="اسم المقر"
+                                                 PreviewKeyDown="MoveToAddress_PreviewKeyDown"/>
+                                    </DockPanel>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                <TextBlock Text="العنوان" Margin="0,0,0,4"/>
+                                <Border Style="{StaticResource Premises.Field}">
+                                    <DockPanel Margin="6,0">
+                                        <icons:PackIconMaterial DockPanel.Dock="Left" Kind="MapMarkerOutline" Width="18" Height="18"
+                                                                Foreground="{StaticResource Workspace.Primary}" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                        <TextBox x:Name="NewAddress" Style="{StaticResource Premises.Input}" MaxLength="150" AutomationProperties.Name="عنوان المقر"
+                                                 PreviewKeyDown="SaveOnEnter_PreviewKeyDown"/>
+                                    </DockPanel>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <dx:SimpleButton Click="Add_Click" Style="{StaticResource Dcms.PrimaryButton}">
+                                    <StackPanel Orientation="Horizontal"><icons:PackIconMaterial Kind="Plus" Margin="0,0,7,0" VerticalAlignment="Center"/><TextBlock Text="إضافة"/></StackPanel>
+                                </dx:SimpleButton>
+                                <dx:SimpleButton Click="ClearAdd_Click" Style="{StaticResource Dcms.SecondaryButton}" Margin="7,0,0,0">
+                                    <StackPanel Orientation="Horizontal"><icons:PackIconMaterial Kind="Eraser" Margin="0,0,7,0" VerticalAlignment="Center"/><TextBlock Text="تفريغ"/></StackPanel>
+                                </dx:SimpleButton>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                <DockPanel x:Name="DetailsPanel" Visibility="Collapsed" Margin="0,0,0,10">
+                    <TextBlock DockPanel.Dock="Left" Text="المقر" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Border Style="{StaticResource Premises.Field}">
+                        <DockPanel Margin="7,0">
+                            <icons:PackIconMaterial DockPanel.Dock="Left" Kind="OfficeBuildingOutline" Width="18" Height="18"
+                                                    Foreground="{StaticResource Workspace.Primary}" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                            <ComboBox x:Name="PremisePicker" DisplayMemberPath="In_Location" Style="{StaticResource MahApps.Styles.ComboBox}"
+                                      mah:TextBoxHelper.Watermark="اختر مقرًا" SelectionChanged="PremisePicker_Changed" MinHeight="34"
+                                      Background="Transparent" BorderThickness="0" AutomationProperties.Name="اختر المقر لعرض سجلاته"/>
+                        </DockPanel>
+                    </Border>
+                </DockPanel>
+                <Border Grid.Row="1" Background="{StaticResource Workspace.Surface}" BorderBrush="{StaticResource Workspace.Line}" BorderThickness="1" CornerRadius="12" Padding="10">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <dx:SimpleButton x:Name="EditButton" Click="BeginEdit_Click" Style="{StaticResource Dcms.SecondaryButton}" Margin="0,0,7,0">
+                                    <StackPanel Orientation="Horizontal"><icons:PackIconMaterial Kind="PencilOutline" Margin="0,0,7,0" VerticalAlignment="Center"/><TextBlock Text="تعديل المحدد"/></StackPanel>
+                                </dx:SimpleButton>
+                                <dx:SimpleButton x:Name="ReloadButton" Click="Reload_Click" Style="{StaticResource Dcms.SecondaryButton}">
+                                    <StackPanel Orientation="Horizontal"><icons:PackIconMaterial Kind="Refresh" Margin="0,0,7,0" VerticalAlignment="Center"/><TextBlock Text="تحديث"/></StackPanel>
+                                </dx:SimpleButton>
+                            </StackPanel>
+                            <TextBlock Text="السجلات" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Workspace.Ink}"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+                        <Grid>
+                            <!-- يستخدم الجدولان فحص تركيز آمن لرؤوس الأعمدة أثناء تحميل النافذة وإغلاقها. -->
+                            <vm:AccessibleGridControl x:Name="LocationsGrid" AutoGenerateColumns="None" SelectionMode="Row" MouseDoubleClick="LocationsGrid_MouseDoubleClick">
+                                <dxg:GridControl.Columns>
+                                    <dxg:GridColumn FieldName="In_Location_ID" Header="الرقم" Width="90" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings><dxe:TextEditSettings HorizontalContentAlignment="Center"/></dxg:GridColumn.EditSettings>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="In_Location" Header="اسم المقر" Width="2*" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings><dxe:TextEditSettings HorizontalContentAlignment="Center"/></dxg:GridColumn.EditSettings>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="Address" Header="العنوان" Width="3*" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings><dxe:TextEditSettings HorizontalContentAlignment="Center"/></dxg:GridColumn.EditSettings>
+                                    </dxg:GridColumn>
+                                </dxg:GridControl.Columns>
+                                <dxg:GridControl.View><dxg:TableView AllowEditing="False" ShowGroupPanel="False" ShowAutoFilterRow="True"
+                                                                     ShowIndicator="False" AutoWidth="True" NavigationStyle="Row"/></dxg:GridControl.View>
+                            </vm:AccessibleGridControl>
+                            <vm:AccessibleGridControl x:Name="DetailsGrid" AutoGenerateColumns="None" Visibility="Collapsed">
+                                <dxg:GridControl.Columns>
+                                    <dxg:GridColumn x:Name="DetailReference" FieldName="Reference" Header="الرقم" Width="*" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings><dxe:TextEditSettings HorizontalContentAlignment="Center"/></dxg:GridColumn.EditSettings>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn x:Name="DetailDescription" FieldName="Description" Header="البيان" Width="2*" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings><dxe:TextEditSettings HorizontalContentAlignment="Center"/></dxg:GridColumn.EditSettings>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="Date" Header="التاريخ" Width="*" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings><dxe:TextEditSettings HorizontalContentAlignment="Center" DisplayFormat="dd-MM-yyyy"/></dxg:GridColumn.EditSettings>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn x:Name="DetailValue" FieldName="Value" Header="القيمة" Width="*" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings><dxe:TextEditSettings HorizontalContentAlignment="Center" DisplayFormat="N2"/></dxg:GridColumn.EditSettings>
+                                    </dxg:GridColumn>
+                                </dxg:GridControl.Columns>
+                                <dxg:GridControl.View><dxg:TableView AllowEditing="False" ShowGroupPanel="False" ShowAutoFilterRow="True"
+                                                                     ShowIndicator="False" AutoWidth="True" NavigationStyle="Row"/></dxg:GridControl.View>
+                            </vm:AccessibleGridControl>
+                        </Grid>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </Border>
+</mah:MetroWindow>
