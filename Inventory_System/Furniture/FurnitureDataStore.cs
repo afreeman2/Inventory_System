@@ -107,15 +107,17 @@ internal sealed class FurnitureDataStore(Func<Cont_maintContext> createContext, 
             .Where(x => x.Branch_ID == scope.BranchId && x.Location_ID == scope.LocationId
                 && x.Location == scope.Location && buildingIds.Contains(x.In_Location_ID))
             .ToDictionaryAsync(x => x.In_Location_ID, x => x.In_Location, token);
-        var culture = CultureInfo.GetCultureInfo("ar-LY");
+        // يحيط التاريخ بعلامات اتجاه يسارية كي لا تقلب العربية ترتيب اليوم والشهر والسنة داخل البطاقة.
+        var culture = CultureInfo.InvariantCulture;
         return headers.Select(x =>
         {
             detailsByHeader.TryGetValue(x.Furniture_ID, out var details);
             details ??= [];
             var date = x.doc_date;
+            string dateText = date.HasValue ? $"\u200E{date.Value.ToString("dd-MM-yyyy", culture)}\u200E" : "";
             return new FurnitureRecordRow(x.Furniture_ID, x.Build_ID,
                 x.Build_ID is int id && names.TryGetValue(id, out var name) ? name : "مقر غير متاح",
-                date, date?.ToString("dd/MM/yyyy", culture) ?? "", x.DataDesc ?? "", details.Count,
+                date, dateText, x.DataDesc ?? "", details.Count,
                 details.Sum(detail => detail.Count)) { Details = details };
         }).ToList();
     }
@@ -142,10 +144,12 @@ internal sealed class FurnitureDataStore(Func<Cont_maintContext> createContext, 
                 && x.Branch_ID == scope.BranchId && x.Location_ID == scope.LocationId && x.Location == scope.Location)
                 .Select(x => x.In_Location).SingleOrDefaultAsync(token) ?? "مقر غير متاح"
             : "مقر غير متاح";
-        var culture = CultureInfo.GetCultureInfo("ar-LY");
+        // يستخدم علامات اتجاه يسارية لعرض التاريخ المحمّل مثل بقية نتائج القائمة.
+        var culture = CultureInfo.InvariantCulture;
         var date = header.doc_date;
+        string dateText = date.HasValue ? $"\u200E{date.Value.ToString("dd-MM-yyyy", culture)}\u200E" : "";
         return (new FurnitureRecordRow(header.Furniture_ID, header.Build_ID, building, date,
-            date?.ToString("dd/MM/yyyy", culture) ?? "", header.DataDesc ?? "", details.Count, details.Sum(x => x.Count)), details);
+            dateText, header.DataDesc ?? "", details.Count, details.Sum(x => x.Count)), details);
     }
     #endregion
 

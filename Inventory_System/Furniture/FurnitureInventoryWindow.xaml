@@ -60,8 +60,6 @@
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Margin" Value="0,0,0,7"/>
         </Style>
-        <!-- يطابق عرض العناوين مع الخلايا، ويحسب الأعمدة النسبية عند غياب قياسها المباشر. -->
-        <furniture:FurnitureGroupHeaderLayoutConverter x:Key="Furniture.GroupHeaderLayout"/>
         <Style x:Key="Furniture.GroupHeaderButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -156,13 +154,42 @@
             <Setter Property="Margin" Value="0,0,6,0"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
+        <!-- خلية موحّدة لرأس العمود تحفظ الفرز والتصفية وتوسّط العنوان والأيقونة. -->
+        <DataTemplate x:Key="Furniture.GroupHeaderCell">
+            <Border BorderBrush="#45628D" BorderThickness="0,0,1,1" Background="#172747">
+                <Grid>
+                    <Button Content="{Binding Header}" Command="{Binding Commands.ChangeColumnSortOrder}"
+                        Style="{StaticResource Furniture.GroupHeaderButton}"/>
+                    <Button Width="28" Height="26" Margin="3,0" HorizontalAlignment="Left"
+                        ToolTip="تصفية العمود" AutomationProperties.Name="تصفية العمود"
+                        Click="GroupColumnFilter_Click" Style="{StaticResource Furniture.GroupHeaderButton}">
+                        <icons:PackIconMaterial Kind="FilterOutline" Width="14" Height="14">
+                            <icons:PackIconMaterial.Style>
+                                <Style TargetType="icons:PackIconMaterial">
+                                    <Setter Property="Foreground" Value="#C7D9F3"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsFiltered}" Value="True">
+                                            <Setter Property="Foreground" Value="#EACD8C"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </icons:PackIconMaterial.Style>
+                        </icons:PackIconMaterial>
+                    </Button>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <!-- بطاقة السجل تتبع تخطيط رأس التكليف في تقارير الصيانة مع إبقاء إجراء الحذف. -->
         <DataTemplate x:Key="Furniture.RecordHeader">
             <Border Background="#EEF3FA" BorderBrush="#C8D7EB" BorderThickness="1" CornerRadius="8"
                 Padding="12,7" Margin="4,4,6,4">
                 <Grid FlowDirection="RightToLeft">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -176,9 +203,10 @@
                     </DockPanel>
                     <DockPanel Grid.Column="1" Style="{StaticResource Furniture.RecordFieldLayout}">
                         <icons:PackIconMaterial DockPanel.Dock="Left" Kind="CalendarMonthOutline" Style="{StaticResource Furniture.RecordHeaderIcon}"/>
-                        <TextBlock Style="{StaticResource Furniture.RecordField}">
-                            <Run Text="التاريخ: " FontWeight="SemiBold"/><Run Text="{Binding RowData.Row.DateText, Mode=OneWay}" FlowDirection="LeftToRight"/>
-                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" VerticalAlignment="Center">
+                            <TextBlock Text="التاريخ: " Style="{StaticResource Furniture.RecordField}" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding RowData.Row.DateText, Mode=OneWay}" Style="{StaticResource Furniture.RecordField}" FlowDirection="LeftToRight" Language="en-US" TextWrapping="NoWrap"/>
+                        </StackPanel>
                     </DockPanel>
                     <DockPanel Grid.Column="2" Style="{StaticResource Furniture.RecordFieldLayout}">
                         <icons:PackIconMaterial DockPanel.Dock="Left" Kind="OfficeBuildingOutline" Style="{StaticResource Furniture.RecordHeaderIcon}"/>
@@ -263,88 +291,51 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-                <!-- يتكرر شريط العناوين عند القروب الأخير فقط، فيفصل اسم الوحدة عن بنودها مباشرة. -->
-                <ItemsControl Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding View.VisibleColumns}" Background="#172747"
-                    FlowDirection="RightToLeft" HorizontalAlignment="Stretch" ClipToBounds="True">
-                    <ItemsControl.Style>
-                        <Style TargetType="ItemsControl">
+                <!-- يتكرر شريط العناوين تحت قروب القسم أو الوحدة فقط، ويربط عرض كل خلية بالعرض الفعلي لعمودها. -->
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    MinHeight="38" Background="#172747" FlowDirection="RightToLeft" HorizontalAlignment="Right" Margin="0,0,6,0">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
                                 <MultiDataTrigger>
                                     <MultiDataTrigger.Conditions>
                                         <Condition Binding="{Binding IsRowExpanded}" Value="True"/>
-                                        <Condition Binding="{Binding GroupLevel}" Value="1"/>
+                                        <Condition Binding="{Binding GroupValue.Column.FieldName}" Value="Section"/>
+                                        <Condition Binding="{Binding View.VisibleColumns.Count}" Value="3"/>
                                     </MultiDataTrigger.Conditions>
                                     <Setter Property="Visibility" Value="Visible"/>
                                 </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </ItemsControl.Style>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border MinHeight="38" BorderBrush="#45628D" BorderThickness="0,0,1,1">
-                                <Border.Width>
-                                    <MultiBinding Converter="{StaticResource Furniture.GroupHeaderLayout}">
-                                        <Binding Path="DataContext.View.TotalGroupAreaIndent" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
-                                        <Binding Path="DataContext.GroupLevel" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
-                                        <Binding Path="ActualWidth"/>
-                                        <Binding Path="ActualVisibleIndex"/>
-                                        <Binding Path="Width"/>
-                                        <Binding Path="DataContext.View.VisibleColumns" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
-                                        <Binding Path="DataContext.View.HorizontalViewport" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
-                                    </MultiBinding>
-                                </Border.Width>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border>
-                                        <Border.Width>
-                                            <MultiBinding Converter="{StaticResource Furniture.GroupHeaderLayout}">
-                                                <Binding Path="DataContext.View.TotalGroupAreaIndent" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
-                                                <Binding Path="DataContext.GroupLevel" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
-                                            </MultiBinding>
-                                        </Border.Width>
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ActualVisibleIndex}" Value="0">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                    </Border>
-                                    <Grid Grid.Column="1">
-                                        <Button Content="{Binding Header}" Command="{Binding Commands.ChangeColumnSortOrder}" Style="{StaticResource Furniture.GroupHeaderButton}"/>
-                                        <Button Width="28" Height="26" Margin="3,0" HorizontalAlignment="Left" ToolTip="تصفية العمود"
-                                            AutomationProperties.Name="تصفية العمود" Click="GroupColumnFilter_Click" Style="{StaticResource Furniture.GroupHeaderButton}">
-                                            <icons:PackIconMaterial Kind="FilterOutline" Width="14" Height="14">
-                                                <icons:PackIconMaterial.Style>
-                                                    <Style TargetType="icons:PackIconMaterial">
-                                                        <Setter Property="Foreground" Value="#C7D9F3"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsFiltered}" Value="True">
-                                                                <Setter Property="Foreground" Value="#EACD8C"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </icons:PackIconMaterial.Style>
-                                            </icons:PackIconMaterial>
-                                        </Button>
-                                    </Grid>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </StackPanel.Style>
+                    <ContentControl Width="{Binding View.VisibleColumns[0].ActualDataWidth}" Content="{Binding View.VisibleColumns[0]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                    <ContentControl Width="{Binding View.VisibleColumns[1].ActualDataWidth}" Content="{Binding View.VisibleColumns[1]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                    <ContentControl Width="{Binding View.VisibleColumns[2].ActualDataWidth}" Content="{Binding View.VisibleColumns[2]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                </StackPanel>
+                <!-- قالب الإدراج والتعديل يضيف خانة الإزالة مع مطابقة العرض الفعلي لأعمدة الجدول الأربع. -->
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    MinHeight="38" Background="#172747" FlowDirection="RightToLeft" HorizontalAlignment="Right" Margin="0,0,6,0">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsRowExpanded}" Value="True"/>
+                                        <Condition Binding="{Binding GroupValue.Column.FieldName}" Value="Section"/>
+                                        <Condition Binding="{Binding View.VisibleColumns.Count}" Value="4"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <ContentControl Width="{Binding View.VisibleColumns[0].ActualDataWidth}" Content="{Binding View.VisibleColumns[0]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                    <ContentControl Width="{Binding View.VisibleColumns[1].ActualDataWidth}" Content="{Binding View.VisibleColumns[1]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                    <ContentControl Width="{Binding View.VisibleColumns[2].ActualDataWidth}" Content="{Binding View.VisibleColumns[2]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                    <ContentControl Width="{Binding View.VisibleColumns[3].ActualDataWidth}" Content="{Binding View.VisibleColumns[3]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                </StackPanel>
             </Grid>
         </DataTemplate>
         <!-- يثبت لون نص الخلية ومحاذاته بعد ربطه بقيمة خلية DevExpress. -->
@@ -495,8 +486,87 @@
                             </Border>
                             <Border Grid.Row="2" Background="White" BorderBrush="#D6DFED" BorderThickness="1" CornerRadius="14" Padding="8" Margin="0,2,0,0">
                                 <dxg:GridControl x:Name="DetailsGrid" AutoGenerateColumns="None" SelectionMode="Row" AutoExpandAllGroups="True" AllowColumnMRUFilterList="False" AllowMRUFilterList="False">
+                                    <dxg:GridControl.Resources>
+                                        <!-- قالب مستقل لجدول الإدراج والتعديل بنفس نمط الجدول الرئيسي دون التأثير عليه. -->
+                                        <DataTemplate x:Key="Furniture.DetailsGroupRow">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="14"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Border Grid.ColumnSpan="2" Background="White" IsHitTestVisible="False"/>
+                                                <Button Grid.Row="1" Command="{Binding View.Commands.ChangeGroupExpanded}" CommandParameter="{Binding RowHandle.Value}"
+                                                    Style="{StaticResource Furniture.GroupExpandButton}" VerticalAlignment="Top" Margin="4,8,2,0"
+                                                    ToolTip="فتح أو إغلاق المجموعة" AutomationProperties.Name="فتح أو إغلاق المجموعة">
+                                                    <icons:PackIconMaterial Width="17" Height="17" Foreground="{StaticResource Dcms.Primary}">
+                                                        <icons:PackIconMaterial.Style>
+                                                            <Style TargetType="icons:PackIconMaterial">
+                                                                <Setter Property="Kind" Value="Plus"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsRowExpanded}" Value="True">
+                                                                        <Setter Property="Kind" Value="Minus"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </icons:PackIconMaterial.Style>
+                                                    </icons:PackIconMaterial>
+                                                </Button>
+                                                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Furniture.GroupCard}" FlowDirection="LeftToRight" HorizontalAlignment="Stretch">
+                                                    <Grid FlowDirection="LeftToRight" HorizontalAlignment="Stretch">
+                                                        <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                            <icons:PackIconMaterial Width="20" Height="20" Foreground="{StaticResource Dcms.Primary}" VerticalAlignment="Center" Margin="5,0">
+                                                                <icons:PackIconMaterial.Style>
+                                                                    <Style TargetType="icons:PackIconMaterial">
+                                                                        <Setter Property="Kind" Value="Domain"/>
+                                                                        <Setter Property="Foreground" Value="{StaticResource Dcms.Primary}"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding GroupValue.Column.FieldName}" Value="Section">
+                                                                                <Setter Property="Kind" Value="FileTree"/>
+                                                                                <Setter Property="Foreground" Value="#A47A2B"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </icons:PackIconMaterial.Style>
+                                                            </icons:PackIconMaterial>
+                                                            <TextBlock Text="{Binding GroupValue.Column.Header}" Foreground="#253A62" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                            <TextBlock Text=":" Foreground="#687188" Margin="2,0,5,0" VerticalAlignment="Center"/>
+                                                            <TextBlock Text="{Binding GroupValue.Text}" Foreground="#253A62" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                                <!-- عدّل Margin="0,0,6,0" هنا فقط لضبط محاذاة جدول الإدراج والتعديل. -->
+                                                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
+                                                    MinHeight="38" Background="#172747" FlowDirection="RightToLeft" HorizontalAlignment="Right" Margin="0,0,0,0">
+                                                    <StackPanel.Style>
+                                                        <Style TargetType="StackPanel">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding IsRowExpanded}" Value="True"/>
+                                                                        <Condition Binding="{Binding GroupValue.Column.FieldName}" Value="Section"/>
+                                                                        <Condition Binding="{Binding View.VisibleColumns.Count}" Value="4"/>
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </MultiDataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </StackPanel.Style>
+                                                    <ContentControl Width="{Binding View.VisibleColumns[0].ActualDataWidth}" Content="{Binding View.VisibleColumns[0]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                                                    <ContentControl Width="{Binding View.VisibleColumns[1].ActualDataWidth}" Content="{Binding View.VisibleColumns[1]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                                                    <ContentControl Width="{Binding View.VisibleColumns[2].ActualDataWidth}" Content="{Binding View.VisibleColumns[2]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                                                    <ContentControl Width="{Binding View.VisibleColumns[3].ActualDataWidth}" Content="{Binding View.VisibleColumns[3]}" ContentTemplate="{StaticResource Furniture.GroupHeaderCell}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </dxg:GridControl.Resources>
                                     <dxg:GridControl.View>
-                                        <dxg:TableView AllowEditing="False" ShowGroupPanel="False" ShowIndicator="False" ShowColumnHeaders="True" ColumnHeaderStyle="{StaticResource Furniture.HiddenNativeHeader}" ShowHorizontalLines="True" ShowVerticalLines="True" AutoWidth="True" GroupRowTemplate="{StaticResource Furniture.GroupRow}" HeaderHorizontalAlignment="Center" RowMinHeight="42" HeaderPanelMinHeight="0" NavigationStyle="Row" AllowPerPixelScrolling="True" />
+                                        <dxg:TableView AllowEditing="False" ShowGroupPanel="False" ShowIndicator="False" ShowColumnHeaders="True" ColumnHeaderStyle="{StaticResource Furniture.HiddenNativeHeader}" ShowHorizontalLines="True" ShowVerticalLines="True" AutoWidth="True" GroupRowTemplate="{StaticResource Furniture.DetailsGroupRow}" HeaderHorizontalAlignment="Center" RowMinHeight="42" HeaderPanelMinHeight="0" NavigationStyle="Row" AllowPerPixelScrolling="True" />
                                     </dxg:GridControl.View>
                                     <dxg:GridControl.Columns>
                                         <dxg:GridColumn FieldName="Type" Header="نوع الأثاث" Width="3*" MinWidth="220" HorizontalHeaderContentAlignment="Center">
@@ -659,7 +729,7 @@
                                     <dxg:TableView AllowEditing="False" ShowGroupPanel="False" ShowIndicator="False" ShowColumnHeaders="True" ColumnHeaderStyle="{StaticResource Furniture.HiddenNativeHeader}" ShowHorizontalLines="True" ShowVerticalLines="True" AutoWidth="True" GroupRowTemplate="{StaticResource Furniture.GroupRow}" HeaderHorizontalAlignment="Center" RowMinHeight="42" HeaderPanelMinHeight="0" NavigationStyle="Row" />
                                 </dxg:GridControl.View>
                                 <dxg:GridControl.Columns>
-                                    <dxg:GridColumn FieldName="Management" 
+                                    <dxg:GridColumn FieldName="Management"
                                                     Header="الإدارة" GroupIndex="0"
                                                     ShowGroupedColumn="False"
                                                     Width="1.2*" HorizontalHeaderContentAlignment="Center" />
@@ -667,7 +737,7 @@
                                                     ShowGroupedColumn="False" Width="1.4*"
                                                     HorizontalHeaderContentAlignment="Center" />
                                     <!-- تبقى بيانات الإدارة والقسم في صفوف التجميع، وتوزع الأعمدة الظاهرة على عرض التفاصيل كاملًا. -->
-                                    <dxg:GridColumn FieldName="Type" Header="نوع الأثاث" Width="650" MinWidth="650" HorizontalHeaderContentAlignment="Center">
+                                    <dxg:GridColumn FieldName="Type" Header="نوع الأثاث" Width="3*" MinWidth="650" HorizontalHeaderContentAlignment="Center">
                                         <dxg:GridColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding Value}" ToolTip="{Binding Value}" Style="{StaticResource Furniture.GridCellText}" TextTrimming="CharacterEllipsis"/>
@@ -681,7 +751,7 @@
                                             </DataTemplate>
                                         </dxg:GridColumn.CellTemplate>
                                     </dxg:GridColumn>
-                                    <dxg:GridColumn FieldName="Notes" Header="ملاحظات" Width="*" MinWidth="600" HorizontalHeaderContentAlignment="Center">
+                                    <dxg:GridColumn FieldName="Notes" Header="ملاحظات" Width="3*" MinWidth="600" HorizontalHeaderContentAlignment="Center">
                                         <dxg:GridColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding Value}" ToolTip="{Binding Value}" Style="{StaticResource Furniture.GridCellText}" TextTrimming="CharacterEllipsis"/>
