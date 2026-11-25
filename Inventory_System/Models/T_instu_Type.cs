@@ -16,4 +16,8 @@ public partial class T_instu_Type
     public int Location_ID { get; set; }
 
     public string Location { get; set; }
+
+    public virtual ICollection<T_OwnedPremises_Insuc> T_OwnedPremises_Insucs { get; set; } = new List<T_OwnedPremises_Insuc>();
+
+    public virtual ICollection<T_RentalPremises_Insuc> T_RentalPremises_Insucs { get; set; } = new List<T_RentalPremises_Insuc>();
 }

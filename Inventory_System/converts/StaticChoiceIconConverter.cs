@@ -57,6 +57,8 @@ namespace Inventory_System.converts
                 "طباعة رؤوس التكليفات كجدول واحد" => "Table",
                 "طباعة كشف مقسم حسب الفرع" => "SourceBranch",
                 "طباعة رؤوس التكليفات مقسمة حسب الفرع" => "Table",
+                "طباعة الكشف الحالي" => "PrinterOutline",
+                "طباعة تقرير" => "FileDocumentOutline",
                 "نصف السنة" => "CalendarRange",
                 "ثلاث أربع السنة" => "CalendarRange",
                 "سنة كاملة" => "CalendarCheckOutline",

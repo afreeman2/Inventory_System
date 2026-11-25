@@ -16,4 +16,8 @@ public partial class T_Service_Compny
     public int Location_ID { get; set; }
 
     public string Location { get; set; }
+
+    public virtual ICollection<T_OwnedPremises_Serivec> T_OwnedPremises_Serivecs { get; set; } = new List<T_OwnedPremises_Serivec>();
+
+    public virtual ICollection<T_RentalPremises_Serivec> T_RentalPremises_Serivecs { get; set; } = new List<T_RentalPremises_Serivec>();
 }

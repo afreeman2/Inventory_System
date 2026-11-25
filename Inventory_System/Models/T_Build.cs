@@ -9,9 +9,9 @@ public partial class T_Build
 {
     public short Build_ID { get; set; }
 
-    public short Location_ID { get; set; }
+    public int Location_ID { get; set; }
 
-    public short Branch_ID { get; set; }
+    public int Branch_ID { get; set; }
 
     public string Build { get; set; }
 

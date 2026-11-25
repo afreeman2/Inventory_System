@@ -11,11 +11,17 @@ public partial class T_Manage
 
     public string Manag { get; set; }
 
-    public short Location_ID { get; set; }
+    public int Location_ID { get; set; }
 
-    public short Branch_ID { get; set; }
+    public int Branch_ID { get; set; }
 
     public DateOnly? Date_Modify { get; set; }
 
     public string Location { get; set; }
+
+    public virtual ICollection<T_Furniture_List> T_Furniture_Lists { get; set; } = new List<T_Furniture_List>();
+
+    public virtual ICollection<T_Section> T_Sections { get; set; } = new List<T_Section>();
+
+    public virtual ICollection<T_Sub_PHones_Building> T_Sub_PHones_Buildings { get; set; } = new List<T_Sub_PHones_Building>();
 }

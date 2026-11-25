@@ -1,0 +1,167 @@
+<mah:MetroWindow x:Class="Inventory_System.support_Data.OrganizationLookupWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+    xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
+    xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+    xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:conv="clr-namespace:Inventory_System.converts"
+    xmlns:vm="clr-namespace:Inventory_System.viewo_Model" xmlns:iconPacks="clr-namespace:MahApps.Metro.IconPacks;assembly=MahApps.Metro.IconPacks.Material"
+                 Width="660" Height="550" MinWidth="580" MinHeight="510"
+    WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
+    ShowTitleBar="False" ShowMinButton="False" ShowMaxRestoreButton="False" ShowCloseButton="False"
+    WindowStyle="None" AllowsTransparency="True" Background="Transparent" BorderThickness="0"
+    FlowDirection="RightToLeft" FontFamily="Segoe UI" FontSize="14"
+    UseLayoutRounding="True" SnapsToDevicePixels="True" dx:ThemeManager.ThemeName="Win11Light"
+    vm:RoundedWindowFrame.Enabled="True" Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown">
+    <mah:MetroWindow.Resources><Style x:Key="Organization.Combo" TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox}">
+<Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="MinHeight" Value="44"/><Setter Property="conv:FieldFeedback.Enabled" Value="True"/>
+</Style>
+        <!-- نفس مظهر بحث المستفيد: خانة الاسم تجمع البحث وكتابة البيان الجديد. -->
+        <Style x:Key="Lookup.Search" TargetType="dxg:GridSearchControl" BasedOn="{StaticResource Lookup.NameSearch}">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FlowDirection" Value="RightToLeft" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="ShowNullTextIfFocused" Value="True" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True" />
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource Validation.FieldError}" />
+        </Style>
+        <Style x:Key="Lookup.Header" TargetType="dxg:BaseGridHeader">
+            <Setter Property="Background" Value="#213F6A" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="dxg:BaseGridColumnHeader.ShowFilterButtonOnHover" Value="False" />
+        </Style>
+    </mah:MetroWindow.Resources>
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <!-- لوحة تعديل مثل المستفيد، داخل Flyouts وبإلغاء لا يكتب في قاعدة البيانات. -->
+            <mah:Flyout x:Name="EditFlyout" Position="Bottom" IsModal="True" IsOpenChanged="EditFlyout_Changed" Style="{StaticResource Maintenance.Flyout}">
+                <Border x:Name="EditCard" Style="{StaticResource Maintenance.Flyout.Card}" Width="460" Margin="14" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Background="#213F6A" CornerRadius="17,17,0,0" Padding="14,10">
+                            <DockPanel>
+                                <dx:SimpleButton Click="CancelEdit_Click" Style="{StaticResource Dcms.WindowButton}" DockPanel.Dock="Right" ToolTip="إغلاق التعديل" AutomationProperties.Name="إغلاق التعديل">
+                                    <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                                </dx:SimpleButton>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <icons:PackIconMaterial x:Name="EditHeaderIcon" Kind="OfficeBuildingOutline" Width="27" Height="27" Foreground="#EACD8C" Margin="0,0,10,0" />
+                                    <TextBlock x:Name="EditHeading" Text="تعديل الإدارة أو القسم" Foreground="White" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                        <StackPanel Margin="18,20"><!-- اختيار الإدارة مستقل عن الاسم، ويحدد الأقسام المعروضة أو الإدارة الأصلية للتعديل. -->
+<StackPanel x:Name="EditManagementGroup" Margin="0,0,0,12">
+<TextBlock Text="الإدارة أو القسم:" Margin="0,0,0,6" FontWeight="SemiBold"/>
+<Border Style="{StaticResource Lookup.NameField}"><DockPanel><icons:PackIconMaterial Kind="Domain" Style="{StaticResource Lookup.NameIcon}"/>
+<ComboBox x:Name="EditManagement" DisplayMemberPath="Manag" SelectedValuePath="Manag_ID" IsEnabled="False" Style="{StaticResource Organization.Combo}" AutomationProperties.Name="الإدارة أو القسم"/>
+</DockPanel></Border></StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <TextBlock x:Name="EditNameLabel" Text="الاسم:" Foreground="{StaticResource Dmc.Text}" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                <Border Grid.Column="1" Style="{StaticResource Lookup.NameField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=EditName}">
+                                    <DockPanel>
+                                        <icons:PackIconMaterial x:Name="EditFieldIcon" Kind="OfficeBuildingOutline" Style="{StaticResource Lookup.NameIcon}" />
+                                        <TextBox x:Name="EditName" MaxLength="50" Style="{StaticResource Lookup.NameText}" mah:TextBoxHelper.Watermark="أدخل الاسم" Validation.ErrorTemplate="{StaticResource Validation.FieldError}" />
+                                    </DockPanel>
+                                </Border>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                                <Button x:Name="SaveEditButton" Click="SaveEdit_Click" Style="{StaticResource Dmc.PrimaryButton}" Width="130" Height="38" Padding="6,0" Background="#213F6A" Foreground="White">
+                                    <StackPanel Orientation="Horizontal"><icons:PackIconMaterialDesign Kind="LibraryAddCheck" Width="18" Height="18" Margin="0,0,7,0" /><TextBlock Text="حفظ التعديل" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" /></StackPanel>
+                                </Button>
+                                <Button Click="CancelEdit_Click" Style="{StaticResource Dmc.SecondaryButton}" Width="122" Height="38" Margin="10,0,0,0" Padding="6,0">
+                                    <StackPanel Orientation="Horizontal"><icons:PackIconBootstrapIcons Kind="XCircleFill" Width="18" Height="18" Margin="0,0,7,0" /><TextBlock Text="إلغاء الأمر" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" /></StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+            </mah:Flyout>
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+    <!-- بطاقة مساعدة صغيرة بنفس ترتيب المستفيد وألوانه، قابلة للتحجيم دون هوامش ثابتة متداخلة. -->
+    <Border Style="{StaticResource Dmc.WindowCard}" CornerRadius="18" Margin="10" Background="White" BorderBrush="{StaticResource Dmc.Border}" BorderThickness="1">
+        <DockPanel Margin="5">
+            <Border DockPanel.Dock="Top" Background="#213F6A" CornerRadius="12,12,0,0" Padding="12,8" MinHeight="48">
+                <DockPanel>
+                    <dx:SimpleButton Click="Close_Click" Style="{StaticResource Dcms.WindowButton}" DockPanel.Dock="Right" ToolTip="إغلاق" AutomationProperties.Name="إغلاق النافذة">
+                        <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                    </dx:SimpleButton>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <icons:PackIconMaterial x:Name="HeaderIcon" Kind="OfficeBuildingOutline" Foreground="#EACD8C" Width="27" Height="27" Margin="0,0,12,0" />
+                        <TextBlock x:Name="WindowHeading" Text="الإدارات والأقسام" Foreground="White" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <StackPanel DockPanel.Dock="Top" Margin="18,18,18,16">
+                <!-- القسم أو الوحدة يتبع الإدارة المختارة؛ الاختيار نفسه يصفي القائمة المعروضة. -->
+                <StackPanel x:Name="AddManagementGroup" Margin="0,0,0,12">
+                    <TextBlock Text="الإدارة أو القسم:" Margin="0,0,0,6" FontWeight="SemiBold"/>
+                    <Border Style="{StaticResource Lookup.NameField}"><DockPanel>
+                        <icons:PackIconMaterial Kind="Domain" Style="{StaticResource Lookup.NameIcon}"/>
+                        <ComboBox x:Name="AddManagement" DisplayMemberPath="Manag" SelectedValuePath="Manag_ID" SelectionChanged="Management_Changed" Style="{StaticResource Organization.Combo}" AutomationProperties.Name="الإدارة أو القسم"/>
+                    </DockPanel></Border>
+                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="NameLabel" Text="الاسم:" Foreground="{StaticResource Dmc.Text}" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center" />
+                    <Border Grid.Column="1" Style="{StaticResource Lookup.NameField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=AddName}">
+                        <DockPanel>
+                            <icons:PackIconMaterial x:Name="NameFieldIcon" Kind="OfficeBuildingOutline" Style="{StaticResource Lookup.NameIcon}" />
+                            <dxg:GridSearchControl x:Name="AddName" Style="{StaticResource Lookup.Search}" View="{Binding ElementName=LookupView, Mode=OneTime}" NullText="أدخل الاسم" AutomationProperties.Name="الاسم والبحث" />
+                        </DockPanel>
+                    </Border>
+                </Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,16,0,0">
+                    <Button x:Name="AddButton" Click="Add_Click" Style="{StaticResource Dmc.PrimaryButton}" Width="122" Height="38" Padding="6,0" Background="#213F6A" Foreground="White">
+                        <StackPanel Orientation="Horizontal"><icons:PackIconMaterialDesign Kind="LibraryAddCheck" Width="18" Height="18" Margin="0,0,7,0" /><TextBlock Text="حفظ" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" /></StackPanel>
+                    </Button>
+                    <Button Click="Close_Click" Style="{StaticResource Dmc.SecondaryButton}" Width="122" Height="38" Margin="10,0,0,0" Padding="6,0">
+                        <StackPanel Orientation="Horizontal"><icons:PackIconBootstrapIcons Kind="XCircleFill" Width="18" Height="18" Margin="0,0,7,0" /><TextBlock Text="إلغاء الأمر" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" /></StackPanel>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+            <dxg:GridControl x:Name="LookupGrid" Margin="2,0,2,5" AutoGenerateColumns="None" SelectionMode="Row" MouseDoubleClick="EditRow_DoubleClick" AllowColumnMRUFilterList="False" AllowMRUFilterList="False">
+                <dxg:GridControl.View>
+                    <dxg:TableView x:Name="LookupView" AllowEditing="False" ShowGroupPanel="False" ShowIndicator="False" AutoWidth="True" ShowSearchPanelMode="Never" HeaderHorizontalAlignment="Center" RowMinHeight="30" FontWeight="Bold" HeaderPanelMinHeight="30" SearchPanelFindFilter="StartsWith" SearchStringToFilterCriteria="View_SearchStringToFilterCriteria" />
+                </dxg:GridControl.View>
+                <dxg:GridControl.Columns>
+                    <!-- عمود بحث مخفي يحمل الصورة الموحدة للحروف، دون تغيير الاسم المعروض أو طباعته. -->
+                    <dxg:GridColumn FieldName="SearchName" Visible="False" ShowInColumnChooser="False" AllowPrinting="False"/>
+                    <dxg:GridColumn x:Name="ManagementColumn" FieldName="Management" Header="الإدارة أو القسم" Width="*" HorizontalHeaderContentAlignment="Center" HeaderStyle="{StaticResource Lookup.Header}">
+<dxg:GridColumn.CellTemplate><DataTemplate><dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" Style="{StaticResource Dmc.GridCellText}"/></DataTemplate></dxg:GridColumn.CellTemplate>
+</dxg:GridColumn>
+                    <dxg:GridColumn x:Name="NameColumn" FieldName="Name" Header="الإدارات والأقسام" Width="*" MinWidth="240" HorizontalHeaderContentAlignment="Center" HeaderStyle="{StaticResource Lookup.Header}">
+                        <dxg:GridColumn.CellTemplate><DataTemplate><dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" FontSize="14" Style="{StaticResource Dmc.GridCellText}" /></DataTemplate></dxg:GridColumn.CellTemplate>
+                    </dxg:GridColumn>
+                    <dxg:GridColumn Header="حذف" Width="70" FixedWidth="True" AllowSorting="False" AllowColumnFiltering="False" HorizontalHeaderContentAlignment="Stretch" HeaderStyle="{StaticResource Lookup.Header}">
+                        <dxg:GridColumn.CellTemplate>
+                            <DataTemplate>
+                                <dx:SimpleButton Click="Delete_Click" Style="{StaticResource Dcms.DangerButton}" Width="36" Height="32" MinHeight="32" Padding="0"
+HorizontalAlignment="Center" VerticalAlignment="Center" 
+AutomationProperties.Name="{Binding RowData.Row.Name, StringFormat='حذف {0}'}">
+                                    <dx:SimpleButton.ToolTip>
+                                        <ToolTip>
+                                            <TextBlock
+                FlowDirection="RightToLeft"
+                Text="{Binding RowData.Row.Name, StringFormat='حذف {0}'}"/>
+                                        </ToolTip>
+                                    </dx:SimpleButton.ToolTip>
+                                    <iconPacks:PackIconMaterial Kind="TrashCanOutline" Width="18" Height="18"/>
+                                </dx:SimpleButton>
+                                    
+                            </DataTemplate>
+                        </dxg:GridColumn.CellTemplate>
+                    </dxg:GridColumn>
+                </dxg:GridControl.Columns>
+            </dxg:GridControl>
+        </DockPanel>
+    </Border>
+</mah:MetroWindow>
+
+

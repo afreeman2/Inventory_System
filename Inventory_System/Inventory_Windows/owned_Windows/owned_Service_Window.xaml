@@ -1,0 +1,562 @@
+﻿<mah:MetroWindow x:Class="Inventory_System.Inventory_Windows.owned_Windows.owned_Service_Window"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+                 xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors" 
+                 xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid" 
+                 xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 xmlns:conv="clr-namespace:Inventory_System.converts" 
+
+                 xmlns:vm="clr-namespace:Inventory_System.viewo_Model"
+                 Title="متابعة عقود شركات الخدمات للمقرات المملوكة" 
+                 Width="1920" Height="1080" MinWidth="960" MinHeight="700"
+                 WindowState="Maximized" ResizeMode="CanResize"
+                 WindowStartupLocation="CenterOwner" WindowStyle="None"
+                 AllowsTransparency="True" Background="Transparent" 
+                 BorderThickness="0" ShowTitleBar="False" ShowCloseButton="False" 
+                 ShowMinButton="False" ShowMaxRestoreButton="False"
+                 GlowBrush="{x:Null}" FlowDirection="RightToLeft" FontFamily="Segoe UI"
+                 FontSize="14" UseLayoutRounding="True" SnapsToDevicePixels="True" 
+                 dx:ThemeManager.ThemeName="Win11Light" vm:RoundedWindowFrame.Enabled="True"
+                                      xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+
+                  DataContext="{dxmvvm:ViewModelSource Type=vm:owned_Service_Viewomodel}"
+                 Loaded="MetroWindow_Loaded"
+                 PreviewKeyDown="ServiceWindow_KeyDown">
+    <mah:MetroWindow.Resources>
+        
+
+        <conv:PowerDisplayNumberConverter x:Key="Service.NumberDisplay" />
+        <Style TargetType="vm:AccessibleGridControl" BasedOn="{StaticResource {x:Type dxg:GridControl}}" />
+        <!-- إطار وأيقونة ومحررات تتبع هوية المنظومة وقالب التحقق العام. -->
+        <Style x:Key="Service.Field" TargetType="Border" BasedOn="{StaticResource Dcms.IconField}">
+            <Setter Property="MinHeight" Value="48" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="CornerRadius" Value="10" />
+        </Style>
+        <Style x:Key="Service.Label" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource Workspace.Ink}" />
+        </Style>
+        <Style x:Key="Service.Text" TargetType="TextBox" BasedOn="{StaticResource MahApps.Styles.TextBox}">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="5,8" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True" />
+        </Style>
+        <Style x:Key="Service.Date" TargetType="DatePicker" BasedOn="{StaticResource MahApps.Styles.DatePicker}">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True" />
+        </Style>
+        <Style x:Key="Service.Combo" TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox}">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True" />
+        </Style>
+        <Style x:Key="Service.Number" TargetType="dxe:SpinEdit">
+            <Setter Property="ShowBorder" Value="False" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Mask" Value="n3" />
+            <Setter Property="MaskUseAsDisplayFormat" Value="True" />
+            <Setter Property="AllowNullInput" Value="True" />
+            <Setter Property="ShowEditorButtons" Value="False" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True" />
+            <Setter Property="ShowError" Value="False" />
+            <Setter Property="ShowErrorToolTip" Value="False" />
+        </Style>
+        <!-- لا تتفعل أوامر البيانات إلا عند توفيرها في سياق الواجهة؛ يسبق التحقق تنفيذها. -->
+        <Style x:Key="Service.Action" TargetType="dx:SimpleButton" BasedOn="{StaticResource Dcms.PrimaryButton}">
+            <Setter Property="MinWidth" Value="148" />
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="{x:Null}">
+                    <Setter Property="IsEnabled" Value="False" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </mah:MetroWindow.Resources>
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <!-- لوحة المصدر معرفة بالكامل في XAML داخل Flyouts النافذة؛ فتح سفلي وبطاقة وسطية بهوية المنظومة. -->
+            <mah:Flyout x:Name="Service_Windows" Style="{StaticResource Maintenance.Flyout}" IsOpenChanged="ServiceFlyout_Changed">
+                <Border x:Name="ServiceCard" Style="{StaticResource Maintenance.Flyout.Card}" Width="900" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="18">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="20,14">
+                            <DockPanel>
+                                <dx:SimpleButton x:Name="btnCancel_eng" Click="CancelDraft_Click" Style="{StaticResource Dcms.WindowButton}" DockPanel.Dock="Right" ToolTip="إغلاق حصر عقود شركات الخدمات" AutomationProperties.Name="إغلاق حصر عقود شركات الخدمات">
+                                    <StackPanel Orientation="Horizontal">
+                                        <icons:PackIconMaterial Kind="Close" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                    </StackPanel>
+                                </dx:SimpleButton>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Foreground="{StaticResource Maintenance.Flyout.HeaderIcon}" Margin="0,0,12,0">
+                                        <icons:PackIconMaterial Kind="HandshakeOutline" Width="28" Height="28" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                    </ContentControl>
+                                    <TextBlock x:Name="ServiceDraftTitle" Text="بيانات عقود شركات الخدمات" Foreground="White" FontSize="23" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                        <StackPanel x:Name="ServiceFields" Margin="24">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="18" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="18" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <!-- يمتد صف الشركة ونوع التعاقد بعرض اللوحة لتتسع الأسماء الطويلة. -->
+                                <Grid Grid.Row="0" Grid.ColumnSpan="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="18" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="شركة الخدمات" FontSize="16" Style="{StaticResource Service.Label}" />
+                                        <!-- زر الإضافة بجوار الخانة مثل المستفيد، خارج إطار الاختيار والتحقق. -->
+                                        <DockPanel>
+                                            <dx:SimpleButton x:Name="AddServiceCompany" DockPanel.Dock="Right" Width="48" Margin="8,0,0,0" Padding="0" Click="ManageCompanies_Click" Style="{StaticResource Dcms.PrimaryButton}" ToolTip="إضافة شركة خدمات" AutomationProperties.Name="إضافة شركة خدمات">
+                                                <icons:PackIconMaterial Kind="OfficeBuildingPlusOutline" Width="23" Height="23" />
+                                            </dx:SimpleButton>
+                                        <Border Style="{StaticResource Service.Field}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="38" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                    <icons:PackIconMaterial Kind="OfficeBuildingOutline" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                                </ContentControl>
+                                                <Grid Grid.Column="1">
+                                                    <ComboBox AutomationProperties.Name="شركة الخدمات" PreviewKeyDown="Field_KeyDown" x:Name="_combo_ins_copmpny" FontSize="16" Style="{StaticResource Service.Combo}" DisplayMemberPath="Service_Compny" SelectedValuePath="Service_Compny_ID" TabIndex="101" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Column="2" Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="نوع التعاقد" FontSize="16" Style="{StaticResource Service.Label}" />
+                                        <!-- نستخدم موضع زر المستفيد وتصميمه مع إبقاء نوع التعاقد ومفتاحه الأصليين. -->
+                                        <DockPanel>
+                                            <dx:SimpleButton x:Name="AddServiceContractType" DockPanel.Dock="Right" Width="48" Margin="8,0,0,0" Padding="0" Click="ManageTypes_Click" Style="{StaticResource Dcms.PrimaryButton}" ToolTip="إضافة نوع تعاقد" AutomationProperties.Name="إضافة نوع تعاقد">
+                                                <icons:PackIconMaterial Kind="PlaylistPlus" Width="23" Height="23" />
+                                            </dx:SimpleButton>
+                                        <Border Style="{StaticResource Service.Field}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="38" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                    <icons:PackIconMaterial Kind="FormatListBulletedType" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                                </ContentControl>
+                                                <Grid Grid.Column="1">
+                                                    <!-- الشركة ونوع التعاقد من قوائم البيانات الأصلية مع حفظ مفاتيحهما. -->
+                                                    <ComboBox AutomationProperties.Name="نوع التعاقد" PreviewKeyDown="Field_KeyDown" x:Name="_combo_ins_type" FontSize="16" Style="{StaticResource Service.Combo}" DisplayMemberPath="Sevice_Compny_Type" SelectedValuePath="Sevice_Compny_Type_ID" TabIndex="102" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </Grid>
+                                </Grid>
+                                <!-- القيمة في الصف الثاني بعد التاريخ ورقم العقد، مع ترتيب تنقل مطابق للعرض. -->
+                                <Grid Grid.Row="1" Grid.Column="4" Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="قيمة العقد" Style="{StaticResource Service.Label}" />
+                                        <Border Style="{StaticResource Service.Field}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="38" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                    <icons:PackIconMaterial Kind="CashMultiple" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                                </ContentControl>
+                                                <Grid Grid.Column="1">
+                                                    <dxe:SpinEdit AutomationProperties.Name="قيمة العقد" PreviewKeyDown="Field_KeyDown" x:Name="Text_ins_Value" Style="{StaticResource Service.Number}" TabIndex="106" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="1" Grid.Column="0" Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="تاريخ العقد" Style="{StaticResource Service.Label}" />
+                                        <Border Style="{StaticResource Service.Field}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="38" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                    <icons:PackIconMaterial Kind="CalendarMonthOutline" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                                </ContentControl>
+                                                <Grid Grid.Column="1">
+                                                    <DatePicker AutomationProperties.Name="تاريخ العقد" PreviewKeyDown="Field_KeyDown" x:Name="date_ins" Style="{StaticResource Service.Date}" TabIndex="104" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="1" Grid.Column="2" Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="رقم العقد" Style="{StaticResource Service.Label}" />
+                                        <Border Style="{StaticResource Service.Field}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="38" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                    <icons:PackIconMaterial Kind="FileDocumentOutline" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                                </ContentControl>
+                                                <Grid Grid.Column="1">
+                                                    <TextBox AutomationProperties.Name="رقم العقد" PreviewKeyDown="Field_KeyDown" x:Name="Text_Service_Contrect" MaxLength="50" Style="{StaticResource Service.Text}" TabIndex="105" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="2" Grid.Column="0" Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="من تاريخ" Style="{StaticResource Service.Label}" />
+                                        <Border Style="{StaticResource Service.Field}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="38" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                    <icons:PackIconMaterial Kind="CalendarStart" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                                </ContentControl>
+                                                <Grid Grid.Column="1">
+                                                    <DatePicker AutomationProperties.Name="من تاريخ" PreviewKeyDown="Field_KeyDown" x:Name="date_ins_from" Style="{StaticResource Service.Date}" TabIndex="107" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="2" Grid.Column="2" Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="إلى تاريخ" Style="{StaticResource Service.Label}" />
+                                        <Border Style="{StaticResource Service.Field}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="38" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                    <icons:PackIconMaterial Kind="CalendarEnd" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                                </ContentControl>
+                                                <Grid Grid.Column="1">
+                                                    <DatePicker AutomationProperties.Name="إلى تاريخ" PreviewKeyDown="Field_KeyDown" x:Name="date_ins_to" Style="{StaticResource Service.Date}" TabIndex="108" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <!-- يحفظ الحدث الإضافة أو التعديل مثل العقود بعد التحقق من جميع خانات العقد. -->
+                                <dx:SimpleButton x:Name="save_ins" Click="SaveService_Click" Style="{StaticResource Dmc.PrimaryButton}" TabIndex="109">
+                                    <StackPanel Orientation="Horizontal">
+                                        <icons:PackIconMaterial Kind="ContentSaveOutline" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                        <TextBlock Text="حفظ" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </dx:SimpleButton>
+                                <dx:SimpleButton x:Name="cancl_eng" Click="CancelDraft_Click" Style="{StaticResource Dcms.SecondaryButton}" MinWidth="148" Margin="12,0,0,0" TabIndex="110">
+                                    <StackPanel Orientation="Horizontal">
+                                        <icons:PackIconMaterial Kind="Close" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                        <TextBlock Text="إلغاء الأمر" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </dx:SimpleButton>
+                            </StackPanel>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+            </mah:Flyout>
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+    <Border x:Name="mybo" CornerRadius="18" Background="{StaticResource Workspace.Canvas}" BorderBrush="{StaticResource Workspace.Line}" BorderThickness="1" Margin="6">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" CornerRadius="17,17,0,0" Background="{StaticResource Workspace.Header}" Padding="22,16">
+                <DockPanel>
+                    <dx:SimpleButton x:Name="btnCancel" Click="Close_Click" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق" AutomationProperties.Name="إغلاق عقود شركات الخدمات" DockPanel.Dock="Right">
+                        <StackPanel Orientation="Horizontal">
+                            <icons:PackIconMaterial Kind="Close" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                        </StackPanel>
+                    </dx:SimpleButton>
+                    <StackPanel Orientation="Horizontal">
+                        <ContentControl Foreground="{StaticResource Maintenance.Flyout.HeaderIcon}" Margin="0,0,14,0">
+                            <icons:PackIconMaterial Kind="HandshakeOutline" Width="34" Height="34" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                        </ContentControl>
+                        <StackPanel>
+                            <TextBlock Text="متابعة عقود شركات الخدمات للمقرات المملوكة" FontSize="25" FontWeight="SemiBold" Foreground="White" />
+                            <TextBlock Text="حصر المقرات المملوكة · عقود شركات الخدمات" Foreground="#D6E2F3" Margin="0,5,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Grid Margin="22">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Border CornerRadius="14" Background="{StaticResource Workspace.Surface}" BorderBrush="{StaticResource Workspace.Line}" BorderThickness="1" Padding="20" Margin="0,0,0,18">
+                    <StackPanel>
+                        <!-- ترتيب فلاتر المصدر محفوظ مع فواصل متساوية ومحررات مرنة دون هوامش سالبة. -->
+                        <Grid x:Name="ServiceFilters">
+                            <!-- خمسة فلاتر على صفين حتى تبقى خانات التاريخ والاختيار واسعة عند تصغير النافذة. -->
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/><ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="2*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <Grid Grid.Column="0">
+                                <StackPanel>
+                                    <TextBlock Text="المقر" Style="{StaticResource Service.Label}" />
+                                    <Border Style="{StaticResource Service.Field}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                <icons:PackIconMaterial Kind="OfficeBuildingOutline" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                            </ContentControl>
+                                            <Grid Grid.Column="1">
+                                                <ComboBox AutomationProperties.Name="المقر" PreviewKeyDown="Field_KeyDown" SelectionChanged="Combo_Locaton_SelectionChanged" x:Name="Combo_Locaton" Style="{StaticResource Service.Combo}" ItemsSource="{Binding T_Inventory_Locations}" DisplayMemberPath="In_Location" SelectedValuePath="In_Location_ID" mah:TextBoxHelper.Watermark="اختر المقر" />
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Grid.Column="2">
+                                <StackPanel>
+                                    <CheckBox x:Name="Date_Check" Content="للبحث من تاريخ" Height="27" Margin="0,0,0,0" Click="DateFilter_Click" />
+                                    <Border IsEnabled="{Binding IsChecked, ElementName=Date_Check}" Style="{StaticResource Service.Field}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                <icons:PackIconMaterial Kind="CalendarStart" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                            </ContentControl>
+                                            <Grid Grid.Column="1">
+                                                <DatePicker AutomationProperties.Name="للبحث من تاريخ" PreviewKeyDown="Field_KeyDown" x:Name="date_INS_begin" Style="{StaticResource Service.Date}" />
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Grid.Column="4">
+                                <StackPanel>
+                                    <TextBlock Text="إلى تاريخ" Style="{StaticResource Service.Label}" />
+                                    <Border IsEnabled="{Binding IsChecked, ElementName=Date_Check}" Style="{StaticResource Service.Field}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                <icons:PackIconMaterial Kind="CalendarEnd" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                            </ContentControl>
+                                            <Grid Grid.Column="1">
+                                                <DatePicker AutomationProperties.Name="إلى تاريخ" PreviewKeyDown="Field_KeyDown" x:Name="date_INS_end" Style="{StaticResource Service.Date}" />
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Grid.Row="1" Grid.Column="0" Margin="0,16,0,0">
+                                <StackPanel>
+                                    <CheckBox x:Name="by_INS_COMPNY" Content="بالشركة" Height="27" Margin="0,0,0,0" Click="CompanyFilter_Click" />
+                                    <Border x:Name="emp_bor" IsEnabled="{Binding IsChecked, ElementName=by_INS_COMPNY}" Style="{StaticResource Service.Field}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                <icons:PackIconMaterial Kind="OfficeBuildingOutline" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                            </ContentControl>
+                                            <Grid Grid.Column="1">
+                                                <ComboBox AutomationProperties.Name="البحث بالشركة" PreviewKeyDown="Field_KeyDown" x:Name="_combo_ins_copmpny_SERASH" Style="{StaticResource Service.Combo}" DisplayMemberPath="Service_Compny" SelectedValuePath="Service_Compny_ID" />
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3" Margin="0,16,0,0">
+                                <StackPanel>
+                                    <CheckBox x:Name="by_INS_TYPE" Content="بنوع التعاقد" Height="27" Margin="0,0,0,0" Click="TypeFilter_Click" />
+                                    <Border x:Name="type_bor" IsEnabled="{Binding IsChecked, ElementName=by_INS_TYPE}" Style="{StaticResource Service.Field}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ContentControl Foreground="{StaticResource Workspace.Primary}" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                <icons:PackIconMaterial Kind="FormatListBulletedType" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                            </ContentControl>
+                                            <Grid Grid.Column="1">
+                                                <ComboBox AutomationProperties.Name="البحث بنوع التعاقد" PreviewKeyDown="Field_KeyDown" x:Name="_combo_ins_type_SEARCH" Style="{StaticResource Service.Combo}" DisplayMemberPath="Sevice_Compny_Type" SelectedValuePath="Sevice_Compny_Type_ID" />
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,22,0,0">
+                            <dx:SimpleButton Click="ManageCompanies_Click" Style="{StaticResource Dcms.SecondaryButton}" Margin="12,0,0,0" ToolTip="إدارة شركات الخدمات">
+                                <StackPanel Orientation="Horizontal"><icons:PackIconMaterial Kind="OfficeBuildingPlusOutline" Width="20" Height="20" Margin="0,0,8,0"/><TextBlock Text="الشركات"/></StackPanel>
+                            </dx:SimpleButton>
+                            <dx:SimpleButton Click="ManageTypes_Click" Style="{StaticResource Dcms.SecondaryButton}" Margin="12,0,0,0" ToolTip="إدارة أنواع التعاقد">
+                                <StackPanel Orientation="Horizontal"><icons:PackIconMaterial Kind="PlaylistPlus" Width="20" Height="20" Margin="0,0,8,0"/><TextBlock Text="أنواع التعاقد"/></StackPanel>
+                            </dx:SimpleButton>
+                            <dx:SimpleButton x:Name="Search_Button" Click="SearchService_Click" Style="{StaticResource Dcms.PrimaryButton}" Width="148" Height="48">
+                                <StackPanel Orientation="Horizontal">
+                                    <icons:PackIconMaterial Kind="Magnify" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                    <TextBlock Text="عرض" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </dx:SimpleButton>
+                            <dx:SimpleButton x:Name="Insert" Click="NewService_Click" Style="{StaticResource Dcms.PrimaryButton}" MinWidth="148" Margin="12,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <icons:PackIconMaterial Kind="FilePlusOutline" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                    <TextBlock Text="إدراج جديد" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </dx:SimpleButton>
+                            <dx:SimpleButton x:Name="But_Cancl" Click="ClearFilters_Click" Style="{StaticResource Dcms.SecondaryButton}" MinWidth="148" Margin="12,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <icons:PackIconMaterial Kind="CloseCircleOutline" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                    <TextBlock Text="إلغاء الأمر" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </dx:SimpleButton>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="1" CornerRadius="14" Background="{StaticResource Workspace.Surface}" BorderBrush="{StaticResource Workspace.Line}" BorderThickness="1" Padding="14">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="2,0,0,14">
+                            <ContentControl Foreground="{StaticResource Workspace.Primary}" Margin="0,0,10,0">
+                                <icons:PackIconMaterial Kind="TableLarge" Width="22" Height="22" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                            </ContentControl>
+                            <TextBlock Text="سجل عقود شركات الخدمات" Foreground="{StaticResource Workspace.Ink}" FontSize="18" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Grid>
+                            <!-- جدول DevExpress بديل Syncfusion، مع أسماء حقول المصدر وترتيبها وتوسيط الرؤوس والخلايا. -->
+                            <!-- نمنع صفوف المصمم النصية مثل string1 من الوصول إلى أعمدة الأرقام والتواريخ؛ بيانات التشغيل لا تتغير. -->
+                            <!-- مصدر العرض الفوري موجود في ItemsSource؛ نموذج العرض نفسه ليس قائمة فواتير. -->
+                            <dxg:GridControl x:Name="insu_List" DesignTimeDataSourceRowCount="0" AutoGenerateColumns="None" SelectionMode="Row" MouseDoubleClick="ServiceRow_DoubleClick" RestoreStateKeyFieldName="ID" RestoreStateOnSourceChange="True" ItemsSource="{Binding ItemsSource, Mode=OneWay}">
+                                <dxg:GridControl.View>
+                                    <dxg:TableView ShowGroupPanel="False" AutoWidth="True" AllowEditing="False" ShowIndicator="False" RowMinHeight="42" HeaderPanelMinHeight="42" HeaderHorizontalAlignment="Center" ColumnHeaderStyle="{StaticResource Modern.GridHeader}" NavigationStyle="Row" ShowSearchPanelMode="Never" AllowPerPixelScrolling="True" />
+                                </dxg:GridControl.View>
+                                <dxg:GridControl.Columns>
+                                    <dxg:GridColumn FieldName="T_Service_Compny.Service_Compny" Header="شركة الخدمات" Width="140" MinWidth="85" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" FontSize="14" Style="{StaticResource Dmc.GridCellText}" />
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="T_Sevice_Compny_Type.Sevice_Compny_Type" Header="نوع التعاقد" Width="190" MinWidth="85" HorizontalHeaderContentAlignment="Center">
+                                        <!-- يظهر اسم نوع التعاقد من العلاقة المرتبطة مع حفظ المفتاح الأصلي. -->
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" FontSize="14" Style="{StaticResource Dmc.GridCellText}" />
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="INS_Value" Header="القيمة" Width="125" MinWidth="85" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings>
+                                            <dxe:TextEditSettings DisplayTextConverter="{StaticResource Service.NumberDisplay}" HorizontalContentAlignment="Center" />
+                                        </dxg:GridColumn.EditSettings>
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <!-- القالب المخصص يتجاوز إعدادات محرر العمود؛ نطبق تنسيق العرض هنا دون تغيير القيمة الرقمية. -->
+                                                <dxe:TextEdit x:Name="PART_Editor" DisplayTextConverter="{StaticResource Service.NumberDisplay}" HorizontalContentAlignment="Center" FontSize="14" Style="{StaticResource Dmc.GridCellText}" />
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="Contrect_ID" Header="رقم العقد" Width="125" MinWidth="85" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" FontSize="14" Style="{StaticResource Dmc.GridCellText}" />
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="Date_Input" Header="تاريخ العقد" Width="135" MinWidth="105" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings>
+                                            <dxe:DateEditSettings DisplayFormat="dd-MM-yyyy" Mask="dd-MM-yyyy" MaskUseAsDisplayFormat="True" />
+                                        </dxg:GridColumn.EditSettings>
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" FontSize="14" Style="{StaticResource Dmc.GridCellText}" />
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="From_Date" Header="من تاريخ" Width="135" MinWidth="105" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings>
+                                            <dxe:DateEditSettings DisplayFormat="dd-MM-yyyy" Mask="dd-MM-yyyy" MaskUseAsDisplayFormat="True" />
+                                        </dxg:GridColumn.EditSettings>
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" FontSize="14" Style="{StaticResource Dmc.GridCellText}" />
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="To_Date" Header="إلى تاريخ" Width="135" MinWidth="105" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.EditSettings>
+                                            <dxe:DateEditSettings DisplayFormat="dd-MM-yyyy" Mask="dd-MM-yyyy" MaskUseAsDisplayFormat="True" />
+                                        </dxg:GridColumn.EditSettings>
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" FontSize="14" Style="{StaticResource Dmc.GridCellText}" />
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn Header="حذف"   Width="70" MinWidth="62" HorizontalHeaderContentAlignment="Center" AllowSorting="False" AllowColumnFiltering="False">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <!-- نأخذ أمر الحذف من نموذج الجدول ونمرر صف الزر نفسه، دون الاعتماد على الصف المحدد. -->
+                                                <dx:SimpleButton Command="{Binding DataContext.DeleteServiceCommand, RelativeSource={RelativeSource AncestorType={x:Type dxg:GridControl}}}" CommandParameter="{Binding RowData.Row}" Padding="4" MinHeight="30"  ToolTip="حذف عقد شركة الخدمات" AutomationProperties.Name="حذف عقد شركة الخدمات">
+                                                   
+                                                    <ContentControl Foreground="#B42318">
+                                                        <icons:PackIconMaterial Kind="DeleteOutline" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" />
+                                                    </ContentControl>
+                                                </dx:SimpleButton>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                </dxg:GridControl.Columns>
+                            </dxg:GridControl>
+                            <dx:LoadingDecorator x:Name="sfBusyIndicator" IsSplashScreenShown="{Binding IsBusy, FallbackValue=False}" IsHitTestVisible="False" />
+                        </Grid>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </Border>
+</mah:MetroWindow>

@@ -30,7 +30,8 @@ internal sealed record PremisesSection(
         new(PremisesRegister.Power, "فواتير الكهرباء", PackIconMaterialKind.LightningBolt, u => u.forowelc, u => u.forreelc),
         new(PremisesRegister.Insurance, "عقود التأمين", PackIconMaterialKind.ShieldCheckOutline, u => u.forowsec, u => u.forresec),
         new(PremisesRegister.Water, "فواتير المياه", PackIconMaterialKind.WaterOutline, u => u.forowwat, u => u.forrewat),
-        new(PremisesRegister.Services, "عقود شركات الخدمات", PackIconMaterialKind.Tools, u => u.forowserv, u => u.forreserv),
+        // المصافحة تعبّر عن التعاقد مع شركة خدمات بدل أدوات الصيانة.
+        new(PremisesRegister.Services, "عقود شركات الخدمات", PackIconMaterialKind.HandshakeOutline, u => u.forowserv, u => u.forreserv),
         new(PremisesRegister.Contracts, "العقود", PackIconMaterialKind.FileDocumentOutline, u => u.forowcont, u => u.forrecont),
         new(PremisesRegister.Archive, "أرشيف المستندات", PackIconMaterialKind.ArchiveOutline, u => u.forowarch, u => u.forrearch),
         new(PremisesRegister.PhoneNumbers, "أرقام الهواتف", PackIconMaterialKind.PhoneInTalkOutline, u => u.forowphon, u => u.forrephon)

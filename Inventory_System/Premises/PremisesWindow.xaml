@@ -9,7 +9,7 @@
     xmlns:conv="clr-namespace:Inventory_System.converts"
     xmlns:vm="clr-namespace:Inventory_System.viewo_Model"
     Title="بيانات المقرات" Width="920" Height="650" MinWidth="670" MinHeight="475"
-    WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip" WindowStyle="None"
+    WindowStartupLocation="CenterOwner" ResizeMode="NoResize" WindowStyle="None" 
     AllowsTransparency="True" Background="Transparent" ShowTitleBar="False" BorderThickness="0"
     GlowBrush="{x:Null}" FlowDirection="RightToLeft" FontFamily="Segoe UI" FontSize="14"
     vm:RoundedWindowFrame.Enabled="True" dx:ThemeManager.ThemeName="Win11Light" Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown">
@@ -23,7 +23,7 @@
             <Setter Property="Padding" Value="8,7"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="conv:FieldFeedback.Enabled" Value="True"/>
-            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource errorTemplateSilverlightStyle}"/>
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource Validation.FieldError}"/>
         </Style>
         <Style x:Key="Premises.Field" TargetType="Border" BasedOn="{StaticResource Dcms.IconField}">
             <Style.Triggers>
@@ -155,7 +155,7 @@
                         <DockPanel Margin="7,0">
                             <icons:PackIconMaterial DockPanel.Dock="Left" Kind="OfficeBuildingOutline" Width="18" Height="18"
                                                     Foreground="{StaticResource Workspace.Primary}" VerticalAlignment="Center" IsHitTestVisible="False"/>
-                            <ComboBox x:Name="PremisePicker" DisplayMemberPath="In_Location" Style="{StaticResource MahApps.Styles.ComboBox}"
+                            <ComboBox conv:FieldFeedback.Enabled="True" x:Name="PremisePicker" DisplayMemberPath="In_Location" Style="{StaticResource MahApps.Styles.ComboBox}"
                                       mah:TextBoxHelper.Watermark="اختر مقرًا" SelectionChanged="PremisePicker_Changed" MinHeight="34"
                                       Background="Transparent" BorderThickness="0" AutomationProperties.Name="اختر المقر لعرض سجلاته"/>
                         </DockPanel>

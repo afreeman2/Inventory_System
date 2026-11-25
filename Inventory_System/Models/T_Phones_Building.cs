@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inventory_System.Models;
 
@@ -20,4 +21,35 @@ public partial class T_Phones_Building
     public DateOnly Doc_Date { get; set; }
 
     public int? types { get; set; }
+    #region مسميات الجهة الإدارية حسب الفرع
+    // يشارك الكشف المحلي وكشف الفروع المسميات المعتمدة في كيان التكليف.
+    internal static (string Department, string Unit) GetOrganizationNames(int branchId) => branchId == 21
+        ? ("ادارة الشؤون الادارية والخدمات", "قسم الصيانة والخدمات / وحدة شؤون الخدمات")
+        : ("قسم الشؤون الادارية والخدمات", "وحدة الخدمات والعلاقات");
+
+    [NotMapped]
+    public string mangordep => GetOrganizationNames(Branch_ID).Department;
+
+    [NotMapped]
+    public string deporunit => GetOrganizationNames(Branch_ID).Unit;
+    #endregion
+    #region مسميات الجهة الإدارية حسب الفرع
+    // يشارك الكشف المحلي وكشف الفروع المسميات المعتمدة في كيان التكليف.
+    internal static (string depuser, string Unituser) GetOrganizationNamesuser(int branchId) => branchId == 21
+        ? ("رئيس قسم الصيانة والخدمات", "رئيس وحدة شؤون الخدمات")
+        : ("رئيس قسم الشؤون الادارية والخدمات", "رئيس وحدة الخدمات والعلاقات");
+
+    [NotMapped]
+    public string depuserdrop => GetOrganizationNamesuser(Branch_ID).depuser;
+
+    [NotMapped]
+    public string Unituserdrop => GetOrganizationNamesuser(Branch_ID).Unituser;
+    #endregion
+
+    [NotMapped]
+    public string reporttitle { get; }
+
+    public virtual T_Inventory_Location T_Inventory_Location { get; set; }
+
+    public virtual ICollection<T_Sub_PHones_Building> T_Sub_PHones_Buildings { get; set; } = new List<T_Sub_PHones_Building>();
 }

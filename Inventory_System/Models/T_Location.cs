@@ -14,4 +14,8 @@ public partial class T_Location
     public DateOnly? Date_Modify { get; set; }
 
     public int Branch_ID { get; set; }
+
+    public virtual T_Branch Branch { get; set; }
+
+    public virtual ICollection<T_Inventory_Location> T_Inventory_Locations { get; set; } = new List<T_Inventory_Location>();
 }

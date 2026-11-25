@@ -1,0 +1,406 @@
+  <mah:MetroWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" x:Class="Inventory_System.Inventory_Windows.owned_Windows.owned_Inventory_Phones_Lines_Window" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core" xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid" xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors" xmlns:dxgt="http://schemas.devexpress.com/winfx/2008/xaml/grid/themekeys" xmlns:dxp="http://schemas.devexpress.com/winfx/2008/xaml/printing" xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:conv="clr-namespace:Inventory_System.converts" xmlns:vm="clr-namespace:Inventory_System.viewo_Model" xmlns:sys="clr-namespace:System;assembly=mscorlib" Title="خطوط الهاتف للمقرات المملوكة" Width="1920" Height="1080" MinWidth="960" MinHeight="700" WindowState="Maximized" ResizeMode="CanResize" WindowStartupLocation="CenterOwner" ShowTitleBar="False" ShowCloseButton="False" ShowMinButton="False" ShowMaxRestoreButton="False" WindowStyle="None" AllowsTransparency="True" Background="Transparent" BorderThickness="0" FlowDirection="RightToLeft" FontFamily="Segoe UI" FontSize="15" UseLayoutRounding="True" SnapsToDevicePixels="True" dx:ThemeManager.ThemeName="Win11Light" vm:RoundedWindowFrame.Enabled="True" Loaded="Window_Loaded" PreviewKeyDown="Window_KeyDown">
+  <mah:MetroWindow.Resources>
+    <conv:StaticChoiceIconConverter x:Key="Line.PrintChoiceIcon" />
+    <DataTemplate x:Key="Line.PrintChoiceTemplate">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+        <icons:PackIconMaterial Kind="{Binding Converter={StaticResource Line.PrintChoiceIcon}}" Width="19" Height="19" Margin="0,0,8,0" Foreground="{StaticResource Workspace.Header}" />
+        <TextBlock Text="{Binding}" VerticalAlignment="Center" />
+      </StackPanel>
+    </DataTemplate>
+    <!-- توسيط الخلايا في المستند أيضًا؛ الطباعة لا تستخدم قالب الخلية المرئي دائمًا. -->
+    <Style x:Key="Line.PrintCell" TargetType="dxe:TextEdit" BasedOn="{StaticResource {dxgt:TableViewThemeKey ResourceKey=DefaultPrintCellStyle}}">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <DataTemplate x:Key="Line.PrintHeader">
+      <StackPanel FlowDirection="RightToLeft" Margin="0,0,0,18" dxp:ExportSettings.TargetType="Panel">
+        <!-- نحدد النص القابل للتصدير صراحة حتى يظهر العنوان في المعاينة والمستند الفعلي. -->
+        <TextBlock Text="صندوق الضمان الاجتماعي" dxp:ExportSettings.TargetType="Text" dxp:TextExportSettings.FontSize="18" dxp:TextExportSettings.FontFamily="Segoe UI" dxp:TextExportSettings.HorizontalAlignment="Center" dxp:TextExportSettings.Text="{Binding Text, RelativeSource={RelativeSource Self}}" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+        <TextBlock Text="{Binding}" dxp:ExportSettings.TargetType="Text" dxp:TextExportSettings.FontSize="18" dxp:TextExportSettings.FontFamily="Segoe UI" dxp:TextExportSettings.HorizontalAlignment="Center" dxp:TextExportSettings.Text="{Binding}" TextAlignment="Center" FontSize="16" Margin="0,6,0,0" />
+      </StackPanel>
+    </DataTemplate>
+    <!-- إطار الخانة وقالب التحقق من موارد المنظومة المشتركة ويشملان الأيقونة. -->
+    <Style x:Key="Line.Label" TargetType="TextBlock">
+      <Setter Property="Margin" Value="0,0,0,7" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{StaticResource Workspace.Ink}" />
+    </Style>
+    <Style x:Key="Line.Combo" TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox}">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="MinHeight" Value="44" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="conv:FieldFeedback.Enabled" Value="True" />
+      <Setter Property="IsTextSearchEnabled" Value="True" />
+    </Style>
+    <Style TargetType="vm:AccessibleGridControl" BasedOn="{StaticResource {x:Type dxg:GridControl}}" />
+    <Style TargetType="dxg:BaseGridHeader">
+      <Setter Property="Background" Value="{StaticResource Workspace.Header}" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+  </mah:MetroWindow.Resources>
+  <mah:MetroWindow.Flyouts>
+    <mah:FlyoutsControl>
+      <!-- الإضافة والتعديل عبر مسودة XAML واحدة؛ لا يحفظ الإغلاق أو الإلغاء أي تغيير. -->
+      <mah:Flyout x:Name="LineFlyout" Style="{StaticResource Maintenance.Flyout}" IsOpenChanged="LineFlyout_Changed">
+        <Border Style="{StaticResource Maintenance.Flyout.Card}" MaxWidth="880" Margin="22" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="18,14">
+              <DockPanel>
+                <dx:SimpleButton Click="CancelDraft_Click" DockPanel.Dock="Right" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق">
+                  <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                </dx:SimpleButton>
+                <StackPanel Orientation="Horizontal">
+                  <icons:PackIconMaterial Kind="PhoneInTalkOutline" Foreground="#EACD8C" Width="28" Height="28" Margin="0,0,12,0" />
+                  <TextBlock x:Name="DraftTitle" Text="إضافة خط هاتف" Foreground="White" FontSize="22" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="540">
+              <StackPanel Margin="18" x:Name="DraftFields" PreviewKeyDown="Draft_KeyDown">
+                <UniformGrid Columns="2">
+                  <StackPanel Margin="6,8">
+                    <TextBlock Text="رقم الهاتف" Style="{StaticResource Line.Label}" />
+                    <Border Style="{StaticResource Lookup.NameField}">
+                      <DockPanel>
+                        <icons:PackIconMaterial Kind="PhoneOutline" Style="{StaticResource Lookup.NameIcon}" />
+                        <TextBox x:Name="DraftPhone" AutomationProperties.Name="رقم الهاتف" Style="{StaticResource Lookup.NameText}" MaxLength="50" FlowDirection="LeftToRight" />
+                      </DockPanel>
+                    </Border>
+                  </StackPanel>
+                  <StackPanel Margin="6,8">
+                    <TextBlock Text="اسم المستخدم" Style="{StaticResource Line.Label}" />
+                    <Border Style="{StaticResource Lookup.NameField}">
+                      <DockPanel>
+                        <icons:PackIconMaterial Kind="AccountOutline" Style="{StaticResource Lookup.NameIcon}" />
+                        <TextBox x:Name="DraftUser" AutomationProperties.Name="اسم المستخدم" Style="{StaticResource Lookup.NameText}" MaxLength="250" />
+                      </DockPanel>
+                    </Border>
+                  </StackPanel>
+                  <StackPanel Margin="6,8">
+                    <TextBlock Text="الإدارة أو القسم" Style="{StaticResource Line.Label}" />
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <Border Style="{StaticResource Lookup.NameField}">
+                        <DockPanel>
+                          <icons:PackIconMaterial Kind="Domain" Style="{StaticResource Lookup.NameIcon}" />
+                          <ComboBox x:Name="DraftManagement" AutomationProperties.Name="الإدارة أو القسم" Style="{StaticResource Line.Combo}" DisplayMemberPath="Manag" SelectedValuePath="Manag_ID" SelectionChanged="DraftManagement_Changed" />
+                        </DockPanel>
+                      </Border>
+                      <dx:SimpleButton x:Name="ManageOrganizations" Click="ManageOrganizations_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="8,0,0,0" MinWidth="46" Grid.Column="1" Width="46" Height="46" Padding="0" ToolTip="الإدارات والأقسام" AutomationProperties.Name="الإدارات والأقسام">
+                        <StackPanel Orientation="Horizontal">
+                          <icons:PackIconMaterial Kind="Plus" Width="20" Height="20" Margin="0" />
+                        </StackPanel>
+                      </dx:SimpleButton>
+                    </Grid>
+                  </StackPanel>
+                  <StackPanel Margin="6,8">
+                    <TextBlock Text="القسم أو الوحدة" Style="{StaticResource Line.Label}" />
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <Border Style="{StaticResource Lookup.NameField}">
+                        <DockPanel>
+                          <icons:PackIconMaterial Kind="FileTree" Style="{StaticResource Lookup.NameIcon}" />
+                          <ComboBox x:Name="DraftSection" AutomationProperties.Name="القسم أو الوحدة" Style="{StaticResource Line.Combo}" DisplayMemberPath="Secti" SelectedValuePath="Secti_ID" />
+                        </DockPanel>
+                      </Border>
+                      <dx:SimpleButton x:Name="ManageSections" Click="ManageSections_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="8,0,0,0" MinWidth="46" Grid.Column="1" Width="46" Height="46" Padding="0" ToolTip="الأقسام والوحدات" AutomationProperties.Name="الأقسام والوحدات">
+                        <StackPanel Orientation="Horizontal">
+                          <icons:PackIconMaterial Kind="Plus" Width="20" Height="20" Margin="0" />
+                        </StackPanel>
+                      </dx:SimpleButton>
+                    </Grid>
+                  </StackPanel>
+                </UniformGrid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                  <dx:SimpleButton x:Name="SaveLine" Click="SaveLine_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5" MinWidth="122">
+                    <StackPanel Orientation="Horizontal">
+                      <icons:PackIconMaterial Kind="ContentSaveOutline" Width="20" Height="20" Margin="0,0,8,0" />
+                      <TextBlock Text="حفظ" />
+                    </StackPanel>
+                  </dx:SimpleButton>
+                  <dx:SimpleButton x:Name="CancelLine" Click="CancelDraft_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5" MinWidth="122">
+                    <StackPanel Orientation="Horizontal">
+                      <icons:PackIconMaterial Kind="CloseCircleOutline" Width="20" Height="20" Margin="0,0,8,0" />
+                      <TextBlock Text="إلغاء" />
+                    </StackPanel>
+                  </dx:SimpleButton>
+                </StackPanel>
+              </StackPanel>
+            </ScrollViewer>
+          </DockPanel>
+        </Border>
+      </mah:Flyout>
+      <mah:Flyout x:Name="PrintFlyout" Style="{StaticResource Maintenance.Flyout}" IsOpenChanged="PrintFlyout_Changed">
+        <Border Style="{StaticResource Maintenance.Flyout.Card}">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="18,14">
+              <DockPanel>
+                <dx:SimpleButton Click="ClosePrint_Click" DockPanel.Dock="Right" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق">
+                  <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                </dx:SimpleButton>
+                <StackPanel Orientation="Horizontal">
+                  <icons:PackIconMaterial Kind="PhoneInTalkOutline" Foreground="#EACD8C" Width="28" Height="28" Margin="0,0,12,0" />
+                  <TextBlock Text="معاينة طباعة خطوط الهاتف" Foreground="White" FontSize="20" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <dxp:DocumentPreviewControl x:Name="PrintPreview" />
+          </DockPanel>
+        </Border>
+      </mah:Flyout>
+      <!-- نموذج التقرير مستقل عن فلاتر الكشف الحالي؛ تعريفه كاملًا هنا ويحفظ المعايير حتى الإلغاء. -->
+      <mah:Flyout x:Name="ReportFlyout" Style="{StaticResource Maintenance.Flyout}">
+        <Border Style="{StaticResource Maintenance.Flyout.Card}" Width="920" MaxWidth="1120" MaxHeight="640" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="18,14">
+              <DockPanel>
+                <dx:SimpleButton Click="CancelReport_Click" DockPanel.Dock="Right" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق">
+                  <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                </dx:SimpleButton>
+                <StackPanel Orientation="Horizontal">
+                  <icons:PackIconMaterial Kind="FileDocumentOutline" Foreground="#EACD8C" Width="28" Height="28" Margin="0,0,12,0" />
+                  <TextBlock Text="تقارير حصر الهواتف" Foreground="White" FontSize="22" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <StackPanel Margin="22,18">
+              <TextBlock Text="عنوان التقرير" Style="{StaticResource Line.Label}" />
+              <Border Style="{StaticResource Lookup.NameField}" Margin="0,0,0,16">
+                <DockPanel>
+                  <icons:PackIconMaterial Kind="FormatTitle" Style="{StaticResource Lookup.NameIcon}" />
+                  <TextBox x:Name="ReportTitle" AutomationProperties.Name="عنوان التقرير" Style="{StaticResource Lookup.NameText}" MaxLength="120" Text="تقارير حصر الهواتف" />
+                </DockPanel>
+              </Border>
+              <UniformGrid Columns="2" Margin="0,0,0,8">
+                <StackPanel Margin="6,8">
+                  <TextBlock Text="المقر" Style="{StaticResource Line.Label}" />
+                  <Border Style="{StaticResource Lookup.NameField}" MinHeight="60">
+                    <DockPanel>
+                      <icons:PackIconMaterial Kind="OfficeBuildingOutline" Style="{StaticResource Lookup.NameIcon}" />
+                      <ComboBox x:Name="ReportBuilding" AutomationProperties.Name="مقر التقرير" Style="{StaticResource Line.Combo}" MinHeight="58" FontSize="17" DisplayMemberPath="In_Location" SelectedValuePath="In_Location_ID" />
+                    </DockPanel>
+                  </Border>
+                </StackPanel>
+                <StackPanel Margin="6,8">
+                  <CheckBox x:Name="ReportByManagement" Content="حسب الإدارة" Click="ReportManagementFilter_Click" Margin="0,0,0,7" />
+                  <Border Style="{StaticResource Lookup.NameField}" MinHeight="60">
+                    <DockPanel>
+                      <icons:PackIconMaterial Kind="Domain" Style="{StaticResource Lookup.NameIcon}" />
+                      <ComboBox x:Name="ReportManagement" AutomationProperties.Name="إدارة التقرير" IsEnabled="False" Style="{StaticResource Line.Combo}" MinHeight="58" FontSize="17" DisplayMemberPath="Manag" SelectedValuePath="Manag_ID" />
+                    </DockPanel>
+                  </Border>
+                </StackPanel>
+              </UniformGrid>
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,18,0,0">
+                <dx:SimpleButton Click="PrintReport_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5" MinWidth="142">
+                  <StackPanel Orientation="Horizontal">
+                    <icons:PackIconMaterial Kind="PrinterOutline" Width="20" Height="20" Margin="0,0,8,0" />
+                    <TextBlock Text="طباعة التقرير" />
+                  </StackPanel>
+                </dx:SimpleButton>
+                <dx:SimpleButton Click="CancelReport_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5" MinWidth="142">
+                  <StackPanel Orientation="Horizontal">
+                    <icons:PackIconMaterial Kind="CloseCircleOutline" Width="20" Height="20" Margin="0,0,8,0" />
+                    <TextBlock Text="إلغاء الأمر" />
+                  </StackPanel>
+                </dx:SimpleButton>
+              </StackPanel>
+            </StackPanel>
+          </DockPanel>
+        </Border>
+      </mah:Flyout>
+    </mah:FlyoutsControl>
+  </mah:MetroWindow.Flyouts>
+  <Border Style="{StaticResource Dmc.WindowCard}" CornerRadius="18" Margin="12" Background="White" BorderBrush="{StaticResource Dmc.Border}" BorderThickness="1">
+    <DockPanel Margin="8">
+      <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="18,14">
+        <DockPanel>
+          <dx:SimpleButton Click="Close_Click" DockPanel.Dock="Right" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق">
+            <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+          </dx:SimpleButton>
+          <StackPanel Orientation="Horizontal">
+            <icons:PackIconMaterial Kind="PhoneInTalkOutline" Foreground="#EACD8C" Width="28" Height="28" Margin="0,0,12,0" />
+            <StackPanel>
+              <TextBlock Text="خطوط الهاتف للمقرات المملوكة" FontSize="25" FontWeight="SemiBold" Foreground="White" />
+              <TextBlock Text="توزيع أرقام الهواتف على الإدارات والأقسام والوحدات" Foreground="#DAE4F4" Margin="0,4,0,0" />
+            </StackPanel>
+          </StackPanel>
+        </DockPanel>
+      </Border>
+      <StackPanel DockPanel.Dock="Top" Margin="12,8">
+        <!-- المقر مطلوب للعرض؛ الرقم يبحث داخل بياناته، وتعمل فلاتر الجهات عند تفعيل مربعات الاختيار فقط. -->
+        <UniformGrid Columns="2">
+          <StackPanel Margin="6,8">
+            <TextBlock Text="المقر" Style="{StaticResource Line.Label}" />
+            <Border Style="{StaticResource Lookup.NameField}">
+              <DockPanel>
+                <icons:PackIconMaterial Kind="OfficeBuildingOutline" Style="{StaticResource Lookup.NameIcon}" />
+                <ComboBox x:Name="FilterBuilding" AutomationProperties.Name="المقر" Style="{StaticResource Line.Combo}" DisplayMemberPath="In_Location" SelectedValuePath="In_Location_ID" SelectionChanged="Filter_Changed" />
+              </DockPanel>
+            </Border>
+          </StackPanel>
+          <StackPanel Margin="6,8">
+            <TextBlock Text="بحث برقم الهاتف" Style="{StaticResource Line.Label}" />
+            <Border Style="{StaticResource Lookup.NameField}">
+              <DockPanel>
+                <icons:PackIconMaterial Kind="PhoneOutline" Style="{StaticResource Lookup.NameIcon}" />
+                <TextBox IsEnabled="False" x:Name="PhoneSearch" AutomationProperties.Name="بحث برقم الهاتف" Style="{StaticResource Lookup.NameText}" MaxLength="50" TextChanged="PhoneSearch_Changed" FlowDirection="LeftToRight" />
+              </DockPanel>
+            </Border>
+          </StackPanel>
+          <StackPanel Margin="6,8">
+            <CheckBox x:Name="ByManagement" Content="تفعيل الفلترة بالإدارة أو القسم" Click="OptionalFilter_Click" Margin="0,0,0,7" />
+            <Border Style="{StaticResource Lookup.NameField}">
+              <DockPanel>
+                <icons:PackIconMaterial Kind="Domain" Style="{StaticResource Lookup.NameIcon}" />
+                <ComboBox IsEnabled="False" x:Name="FilterManagement" AutomationProperties.Name="الإدارة أو القسم (اختياري)" Style="{StaticResource Line.Combo}" DisplayMemberPath="Manag" SelectedValuePath="Manag_ID" SelectionChanged="FilterManagement_Changed" />
+              </DockPanel>
+            </Border>
+          </StackPanel>
+          <StackPanel Margin="6,8">
+            <CheckBox x:Name="BySection" Content="تفعيل الفلترة بالقسم أو الوحدة" Click="OptionalFilter_Click" Margin="0,0,0,7" />
+            <Border Style="{StaticResource Lookup.NameField}">
+              <DockPanel>
+                <icons:PackIconMaterial Kind="FileTree" Style="{StaticResource Lookup.NameIcon}" />
+                <ComboBox IsEnabled="False" x:Name="FilterSection" AutomationProperties.Name="القسم أو الوحدة (اختياري)" Style="{StaticResource Line.Combo}" DisplayMemberPath="Secti" SelectedValuePath="Secti_ID" SelectionChanged="Filter_Changed" />
+              </DockPanel>
+            </Border>
+          </StackPanel>
+        </UniformGrid>
+        <WrapPanel Margin="0,8">
+          <dx:SimpleButton x:Name="NewLine" Click="NewLine_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5" MinWidth="122">
+            <StackPanel Orientation="Horizontal">
+              <icons:PackIconMaterial Kind="Plus" Width="20" Height="20" Margin="0,0,8,0" />
+              <TextBlock Text="إضافة خط" />
+            </StackPanel>
+          </dx:SimpleButton>
+          <dx:SimpleButton x:Name="CancelCommand" Click="CancelCommand_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5" MinWidth="122">
+            <StackPanel Orientation="Horizontal">
+              <icons:PackIconMaterial Kind="CloseCircleOutline" Width="20" Height="20" Margin="0,0,8,0" />
+              <TextBlock Text="إلغاء الأمر" />
+            </StackPanel>
+          </dx:SimpleButton>
+          <dx:SimpleButton x:Name="ClearFilters" Click="ClearFilters_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5" MinWidth="122">
+            <StackPanel Orientation="Horizontal">
+              <icons:PackIconMaterial Kind="FilterRemoveOutline" Width="20" Height="20" Margin="0,0,8,0" />
+              <TextBlock Text="تفريغ البحث" />
+            </StackPanel>
+          </dx:SimpleButton>
+          <ComboBox x:Name="PrintMode" Width="230" Height="44" Margin="5" SelectedIndex="0" ItemTemplate="{StaticResource Line.PrintChoiceTemplate}" HorizontalContentAlignment="Center" AutomationProperties.Name="خيارات الطباعة">
+            <sys:String>طباعة الكشف الحالي</sys:String>
+            <sys:String>طباعة تقرير</sys:String>
+          </ComboBox>
+          <dx:SimpleButton x:Name="PrintLines" Click="Print_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5" MinWidth="122">
+            <StackPanel Orientation="Horizontal">
+              <icons:PackIconMaterial Kind="PrinterOutline" Width="20" Height="20" Margin="0,0,8,0" />
+              <TextBlock Text="طباعة" />
+            </StackPanel>
+          </dx:SimpleButton>
+        </WrapPanel>
+      </StackPanel>
+      <TextBlock DockPanel.Dock="Bottom" x:Name="ResultStatus" Text="جارٍ تحميل البيانات…" Foreground="{StaticResource Workspace.Ink}" Margin="18,10" />
+      <vm:AccessibleGridControl x:Name="LinesGrid" AutoGenerateColumns="None" AutoExpandAllGroups="True" SelectionMode="Row" Margin="12,0,12,4">
+        <dxg:GridControl.View>
+          <dxg:TableView PrintCellStyle="{StaticResource Line.PrintCell}" x:Name="LinesView" AllowEditing="False" ShowGroupPanel="False" ShowIndicator="False" AutoWidth="True" RowMinHeight="40" HeaderPanelMinHeight="42" HeaderHorizontalAlignment="Center" ShowSearchPanelMode="Never" RowDoubleClick="LineRow_DoubleClick">
+            <dxg:TableView.GroupRowTemplate>
+              <DataTemplate xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks">
+                <!-- بطاقة المجموعة تبرز الإدارة مع أيقونة دون إخفاء الصفوف التابعة لها. -->
+                <Border Background="#E9EEF8" BorderBrush="#CAD4E6" BorderThickness="1" CornerRadius="8" Padding="14,8" Margin="4,3">
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <icons:PackIconMaterial Kind="Domain" Foreground="#3559A0" Width="23" Height="23" Margin="0,0,10,0" />
+                    <TextBlock Text="الإدارة أو القسم: " FontWeight="SemiBold" FontSize="15" Foreground="#213F6A" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding GroupValue.Value}" FontWeight="SemiBold" FontSize="15" Foreground="#213F6A" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </dxg:TableView.GroupRowTemplate>
+          </dxg:TableView>
+        </dxg:GridControl.View>
+        <dxg:GridControl.Columns>
+          <dxg:GridColumn FieldName="Building" Header="المقر" Width="220" HorizontalHeaderContentAlignment="Center">
+            <dxg:GridColumn.EditSettings>
+              <dxe:TextEditSettings HorizontalContentAlignment="Center" />
+            </dxg:GridColumn.EditSettings>
+            <dxg:GridColumn.CellTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <icons:PackIconMaterial Kind="OfficeBuildingOutline" Width="19" Height="19" Foreground="#526C99" Margin="0,0,8,0" />
+                  <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" Style="{StaticResource Dmc.GridCellText}" />
+                </StackPanel>
+              </DataTemplate>
+            </dxg:GridColumn.CellTemplate>
+          </dxg:GridColumn>
+          <dxg:GridColumn FieldName="Phone" Header="رقم الهاتف" Width="150" HorizontalHeaderContentAlignment="Center">
+            <dxg:GridColumn.EditSettings>
+              <dxe:TextEditSettings HorizontalContentAlignment="Center" />
+            </dxg:GridColumn.EditSettings>
+            <dxg:GridColumn.CellTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <icons:PackIconMaterial Kind="PhoneOutline" Width="19" Height="19" Foreground="#526C99" Margin="0,0,8,0" />
+                  <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" Style="{StaticResource Dmc.GridCellText}" />
+                </StackPanel>
+              </DataTemplate>
+            </dxg:GridColumn.CellTemplate>
+          </dxg:GridColumn>
+          <dxg:GridColumn FieldName="Management" GroupIndex="0" Header="الإدارة أو القسم" Width="220" HorizontalHeaderContentAlignment="Center">
+            <dxg:GridColumn.EditSettings>
+              <dxe:TextEditSettings HorizontalContentAlignment="Center" />
+            </dxg:GridColumn.EditSettings>
+            <dxg:GridColumn.CellTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <icons:PackIconMaterial Kind="Domain" Width="19" Height="19" Foreground="#526C99" Margin="0,0,8,0" />
+                  <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" Style="{StaticResource Dmc.GridCellText}" />
+                </StackPanel>
+              </DataTemplate>
+            </dxg:GridColumn.CellTemplate>
+          </dxg:GridColumn>
+          <dxg:GridColumn FieldName="Section" Header="القسم أو الوحدة" Width="220" HorizontalHeaderContentAlignment="Center">
+            <dxg:GridColumn.EditSettings>
+              <dxe:TextEditSettings HorizontalContentAlignment="Center" />
+            </dxg:GridColumn.EditSettings>
+            <dxg:GridColumn.CellTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <icons:PackIconMaterial Kind="FileTree" Width="19" Height="19" Foreground="#526C99" Margin="0,0,8,0" />
+                  <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" Style="{StaticResource Dmc.GridCellText}" />
+                </StackPanel>
+              </DataTemplate>
+            </dxg:GridColumn.CellTemplate>
+          </dxg:GridColumn>
+          <dxg:GridColumn FieldName="UserName" Header="اسم المستخدم" Width="180" HorizontalHeaderContentAlignment="Center">
+            <dxg:GridColumn.EditSettings>
+              <dxe:TextEditSettings HorizontalContentAlignment="Center" />
+            </dxg:GridColumn.EditSettings>
+            <dxg:GridColumn.CellTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <icons:PackIconMaterial Kind="AccountOutline" Width="19" Height="19" Foreground="#526C99" Margin="0,0,8,0" />
+                  <dxe:TextEdit x:Name="PART_Editor" HorizontalContentAlignment="Center" Style="{StaticResource Dmc.GridCellText}" />
+                </StackPanel>
+              </DataTemplate>
+            </dxg:GridColumn.CellTemplate>
+          </dxg:GridColumn>
+          <dxg:GridColumn x:Name="DeleteColumn" Header="حذف" Width="70" FixedWidth="True" AllowSorting="False" AllowColumnFiltering="False" AllowPrinting="False" HorizontalHeaderContentAlignment="Center">
+            <dxg:GridColumn.CellTemplate>
+              <DataTemplate>
+                <dx:SimpleButton Click="DeleteLine_Click" HorizontalAlignment="Center" ToolTip="حذف الخط">
+                  <icons:PackIconMaterial Kind="DeleteOutline" Foreground="#B42318" Width="22" Height="22" />
+                </dx:SimpleButton>
+              </DataTemplate>
+            </dxg:GridColumn.CellTemplate>
+          </dxg:GridColumn>
+        </dxg:GridControl.Columns>
+      </vm:AccessibleGridControl>
+    </DockPanel>
+  </Border>
+</mah:MetroWindow>
+

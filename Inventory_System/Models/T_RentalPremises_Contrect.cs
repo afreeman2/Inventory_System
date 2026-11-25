@@ -24,4 +24,8 @@ public partial class T_RentalPremises_Contrect
     public string Location { get; set; }
 
     public DateOnly Date_Modify { get; set; }
+
+    public virtual T_Benef T_Benef { get; set; }
+
+    public virtual T_RentalPremise T_RentalPremise { get; set; }
 }

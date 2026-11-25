@@ -13,7 +13,7 @@ public partial class V_fut
 
     public DateOnly? doc_date { get; set; }
 
-    public int CountNo { get; set; }
+    public long CountNo { get; set; }
 
     public string Furniture_Type { get; set; }
 

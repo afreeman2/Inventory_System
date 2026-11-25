@@ -30,10 +30,16 @@
     <PackageReference Include="MahApps.Metro.IconPacks.MaterialDesign" Version="6.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.6" />
     <PackageReference Include="TwainScanningCore" Version="1.4.3" />
+    <!-- قارئ الملفات نفسه المستخدم في DCMS للتحقق من سلامة PDF قبل الحفظ. -->
+    <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Resources\ssf Logo.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <!-- شعار النافذة باسم مسار آمن لاستخدامه كأيقونة WPF. -->
+    <Resource Include="Resources\SsfLogo-transparent.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
@@ -67,12 +73,26 @@
 
   <ItemGroup>
     <Folder Include="Accounts\" />
-    <Folder Include="reports\" />
-    <Folder Include="support_Data\" />
+    <Folder Include="Inventory_Windows\leased_Windows\" />
+    <Folder Include="Models\" />
+    <Folder Include="NewFolder\" />
+    <Folder Include="other_Windows\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="MainWindows\MainWindow.Accounts.cs" />
+    <!-- نحفظ القالبين ضمن المصدر وننقلهما إلى مجلد التقارير في البناء والنشر. -->
+    <None Update="reports\Templates\*.repx">
+      <TargetPath>Reports\%(Filename)%(Extension)</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <!-- يرافق سكربت الحقول النسخة المنشورة لتحديث نسخ قواعد البيانات الأخرى عند نقل البرنامج. -->
+    <None Update="Archive\2026-11-23-archive-fields.sql">
+      <TargetPath>Database\2026-11-23-archive-fields.sql</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

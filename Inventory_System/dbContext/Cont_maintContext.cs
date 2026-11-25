@@ -38,6 +38,8 @@ public partial class Cont_maintContext : DbContext
 
     public virtual DbSet<T_OwnedPremises_Contrect> T_OwnedPremises_Contrects { get; set; }
 
+    public virtual DbSet<T_OwnedPremises_Document> T_OwnedPremises_Documents { get; set; }
+
     public virtual DbSet<T_OwnedPremises_Insuc> T_OwnedPremises_Insucs { get; set; }
 
     public virtual DbSet<T_OwnedPremises_Phone> T_OwnedPremises_Phones { get; set; }
@@ -54,6 +56,8 @@ public partial class Cont_maintContext : DbContext
 
     public virtual DbSet<T_RentalPremises_Contrect> T_RentalPremises_Contrects { get; set; }
 
+    public virtual DbSet<T_RentalPremises_Document> T_RentalPremises_Documents { get; set; }
+
     public virtual DbSet<T_RentalPremises_Insuc> T_RentalPremises_Insucs { get; set; }
 
     public virtual DbSet<T_RentalPremises_Phone> T_RentalPremises_Phones { get; set; }
@@ -69,6 +73,10 @@ public partial class Cont_maintContext : DbContext
     public virtual DbSet<T_Service_Compny> T_Service_Compnies { get; set; }
 
     public virtual DbSet<T_Sevice_Compny_Type> T_Sevice_Compny_Types { get; set; }
+
+    public virtual DbSet<T_Sub_Doc> T_Sub_Docs { get; set; }
+
+    public virtual DbSet<T_Sub_Doc_rental> T_Sub_Doc_rentals { get; set; }
 
     public virtual DbSet<T_Sub_PHones_Building> T_Sub_PHones_Buildings { get; set; }
 
@@ -133,6 +141,10 @@ public partial class Cont_maintContext : DbContext
 
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.DataDesc).HasMaxLength(250);
+
+            entity.HasOne(d => d.T_Inventory_Location).WithMany(p => p.T_Furnitures)
+                .HasForeignKey(d => new { d.Build_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .HasConstraintName("FK_T_Furniture_T_Inventory_Locations");
         });
 
         modelBuilder.Entity<T_Furniture_List>(entity =>
@@ -143,6 +155,26 @@ public partial class Cont_maintContext : DbContext
 
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.ID).ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.T_Furniture).WithMany(p => p.T_Furniture_Lists)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Furniture_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Furniture_List_T_Furniture");
+
+            entity.HasOne(d => d.T_Furniture_Type).WithMany(p => p.T_Furniture_Lists)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Furniture_Type_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Furniture_List_T_Furniture_Type");
+
+            entity.HasOne(d => d.T_Manage).WithMany(p => p.T_Furniture_Lists)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Manag_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Furniture_List_T_Manage");
+
+            entity.HasOne(d => d.T_Section).WithMany(p => p.T_Furniture_Lists)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Secti_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Furniture_List_T_Section");
         });
 
         modelBuilder.Entity<T_Furniture_Type>(entity =>
@@ -157,6 +189,11 @@ public partial class Cont_maintContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(e => e.barcode).HasMaxLength(200);
+
+            entity.HasOne(d => d.T_furniture_Class).WithMany(p => p.T_Furniture_Types)
+                .HasForeignKey(d => new { d.Class_id, d.Location_ID, d.Branch_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Furniture_Type_T_furniture_Class");
         });
 
         modelBuilder.Entity<T_Inventory_Location>(entity =>
@@ -168,6 +205,11 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.In_Location)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            entity.HasOne(d => d.T_Location).WithMany(p => p.T_Inventory_Locations)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Inventory_Locations_T_Locations");
         });
 
         modelBuilder.Entity<T_Location>(entity =>
@@ -176,6 +218,11 @@ public partial class Cont_maintContext : DbContext
 
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.Location_ID).ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.Branch).WithMany(p => p.T_Locations)
+                .HasForeignKey(d => d.Branch_ID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Locations_T_Branch");
         });
 
         modelBuilder.Entity<T_Manage>(entity =>
@@ -216,9 +263,16 @@ public partial class Cont_maintContext : DbContext
         {
             entity.HasKey(e => new { e.RentalPremises_ID, e.Branch_ID, e.Location_ID, e.Location });
 
+            entity.HasIndex(e => new { e.In_Location_ID, e.Branch_ID, e.Location_ID, e.Location }, "UQ_T_OwnedPremises_Inventory").IsUnique();
+
             entity.Property(e => e.RentalPremises_ID).ValueGeneratedOnAdd();
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.Address).HasMaxLength(150);
+
+            entity.HasOne(d => d.T_Inventory_Location).WithOne(p => p.T_OwnedPremises)
+                .HasForeignKey<T_OwnedPremise>(d => new { d.In_Location_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_T_OwnedPremises_T_Inventory_Locations");
         });
 
         modelBuilder.Entity<T_OwnedPremises_Contrect>(entity =>
@@ -232,6 +286,33 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.Cont_data)
                 .IsRequired()
                 .HasMaxLength(250);
+
+            entity.HasOne(d => d.T_Benef).WithMany(p => p.T_OwnedPremises_Contrects)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Benef_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Contrect_T_Benef");
+
+            entity.HasOne(d => d.T_OwnedPremise).WithMany(p => p.T_OwnedPremises_Contrects)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Contrect_T_OwnedPremises");
+        });
+
+        modelBuilder.Entity<T_OwnedPremises_Document>(entity =>
+        {
+            entity.HasKey(e => new { e.Document_ID, e.Branch_ID, e.Location_ID, e.Location }).HasName("PK_T_T_OwnedPremises_Documents");
+
+            entity.HasIndex(e => e.Document_ID, "UQ_T_OwnedPremises_Documents_Document_ID").IsUnique();
+
+            entity.Property(e => e.Document_ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.Location).HasMaxLength(200);
+            entity.Property(e => e.Documents).HasColumnType("image");
+            entity.Property(e => e.doc_info).HasMaxLength(150);
+
+            entity.HasOne(d => d.T_OwnedPremise).WithMany(p => p.T_OwnedPremises_Documents)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Documents_T_OwnedPremises");
         });
 
         modelBuilder.Entity<T_OwnedPremises_Insuc>(entity =>
@@ -243,6 +324,21 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.ID).ValueGeneratedOnAdd();
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.INS_Value).HasColumnType("numeric(18, 3)");
+
+            entity.HasOne(d => d.T_instu_Type).WithMany(p => p.T_OwnedPremises_Insucs)
+                .HasForeignKey(d => new { d.INS_TYPE_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Insuc_T_instu_Type");
+
+            entity.HasOne(d => d.T_OwnedPremise).WithMany(p => p.T_OwnedPremises_Insucs)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Insuc_T_OwnedPremises");
+
+            entity.HasOne(d => d.T_insu_Compny).WithMany(p => p.T_OwnedPremises_Insucs)
+                .HasForeignKey(d => new { d.insu_Compny_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Insuc_T_insu_Compny");
         });
 
         modelBuilder.Entity<T_OwnedPremises_Phone>(entity =>
@@ -262,6 +358,11 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.phone_inv)
                 .IsRequired()
                 .HasMaxLength(50);
+
+            entity.HasOne(d => d.T_OwnedPremise).WithMany(p => p.T_OwnedPremises_Phones)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Phones_T_OwnedPremises");
         });
 
         modelBuilder.Entity<T_OwnedPremises_Power>(entity =>
@@ -278,6 +379,11 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.R_powerVal).HasColumnType("numeric(18, 3)");
             entity.Property(e => e.debts_value).HasColumnType("numeric(18, 3)");
             entity.Property(e => e.power_Read).HasColumnType("numeric(18, 3)");
+
+            entity.HasOne(d => d.T_OwnedPremise).WithMany(p => p.T_OwnedPremises_Powers)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Power_T_OwnedPremises");
         });
 
         modelBuilder.Entity<T_OwnedPremises_Serivec>(entity =>
@@ -290,6 +396,21 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.Contrect_ID).HasMaxLength(50);
             entity.Property(e => e.INS_Value).HasColumnType("numeric(18, 3)");
+
+            entity.HasOne(d => d.T_OwnedPremise).WithMany(p => p.T_OwnedPremises_Serivecs)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Serivec_T_OwnedPremises");
+
+            entity.HasOne(d => d.T_Service_Compny).WithMany(p => p.T_OwnedPremises_Serivecs)
+                .HasForeignKey(d => new { d.Service_Compny_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Serivec_T_Service_Compny");
+
+            entity.HasOne(d => d.T_Sevice_Compny_Type).WithMany(p => p.T_OwnedPremises_Serivecs)
+                .HasForeignKey(d => new { d.Sevice_Compny_Type_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Serivec_T_Sevice_Compny_Type");
         });
 
         modelBuilder.Entity<T_OwnedPremises_Water>(entity =>
@@ -306,6 +427,11 @@ public partial class Cont_maintContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(e => e.debts_value).HasColumnType("numeric(18, 3)");
+
+            entity.HasOne(d => d.T_OwnedPremise).WithMany(p => p.T_OwnedPremises_Waters)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_OwnedPremises_Water_T_OwnedPremises");
         });
 
         modelBuilder.Entity<T_Phones_Building>(entity =>
@@ -316,6 +442,11 @@ public partial class Cont_maintContext : DbContext
 
             entity.Property(e => e.ID).ValueGeneratedOnAdd();
             entity.Property(e => e.Location).HasMaxLength(200);
+
+            entity.HasOne(d => d.T_Inventory_Location).WithMany(p => p.T_Phones_Buildings)
+                .HasForeignKey(d => new { d.Build_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Phones_Building_T_Inventory_Locations");
         });
 
         modelBuilder.Entity<T_RentalPremise>(entity =>
@@ -325,6 +456,7 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.RentalPremises_ID).ValueGeneratedOnAdd();
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.Address).HasMaxLength(150);
+            entity.Property(e => e.build_name).HasMaxLength(200);
         });
 
         modelBuilder.Entity<T_RentalPremises_Contrect>(entity =>
@@ -338,6 +470,28 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.Cont_data)
                 .IsRequired()
                 .HasMaxLength(250);
+
+            entity.HasOne(d => d.T_Benef).WithMany(p => p.T_RentalPremises_Contrects)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Benef_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Contrect_T_Benef");
+
+            entity.HasOne(d => d.T_RentalPremise).WithMany(p => p.T_RentalPremises_Contrects)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Contrect_T_RentalPremises");
+        });
+
+        modelBuilder.Entity<T_RentalPremises_Document>(entity =>
+        {
+            entity.HasKey(e => new { e.Document_ID, e.Branch_ID, e.Location_ID, e.Location }).HasName("PK_T_T_RentalPremises_Documents");
+
+            entity.HasIndex(e => e.Document_ID, "UQ_T_RentalPremises_Documents_Document_ID").IsUnique();
+
+            entity.Property(e => e.Document_ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.Location).HasMaxLength(200);
+            entity.Property(e => e.Documents).HasColumnType("image");
+            entity.Property(e => e.doc_info).HasMaxLength(150);
         });
 
         modelBuilder.Entity<T_RentalPremises_Insuc>(entity =>
@@ -349,6 +503,21 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.ID).ValueGeneratedOnAdd();
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.INS_Value).HasColumnType("numeric(18, 3)");
+
+            entity.HasOne(d => d.T_instu_Type).WithMany(p => p.T_RentalPremises_Insucs)
+                .HasForeignKey(d => new { d.INS_TYPE_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Insuc_T_instu_Type");
+
+            entity.HasOne(d => d.T_RentalPremise).WithMany(p => p.T_RentalPremises_Insucs)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Insuc_T_RentalPremises");
+
+            entity.HasOne(d => d.T_insu_Compny).WithMany(p => p.T_RentalPremises_Insucs)
+                .HasForeignKey(d => new { d.insu_Compny_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Insuc_T_insu_Compny");
         });
 
         modelBuilder.Entity<T_RentalPremises_Phone>(entity =>
@@ -368,6 +537,11 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.phone_inv)
                 .IsRequired()
                 .HasMaxLength(50);
+
+            entity.HasOne(d => d.T_RentalPremise).WithMany(p => p.T_RentalPremises_Phones)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Phones_T_RentalPremises");
         });
 
         modelBuilder.Entity<T_RentalPremises_Power>(entity =>
@@ -384,6 +558,11 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.R_powerVal).HasColumnType("numeric(18, 3)");
             entity.Property(e => e.debts_value).HasColumnType("numeric(18, 3)");
             entity.Property(e => e.power_Read).HasColumnType("numeric(18, 3)");
+
+            entity.HasOne(d => d.T_RentalPremise).WithMany(p => p.T_RentalPremises_Powers)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Power_T_RentalPremises");
         });
 
         modelBuilder.Entity<T_RentalPremises_Serivec>(entity =>
@@ -396,6 +575,21 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.Contrect_ID).HasMaxLength(50);
             entity.Property(e => e.INS_Value).HasColumnType("numeric(18, 3)");
+
+            entity.HasOne(d => d.T_RentalPremise).WithMany(p => p.T_RentalPremises_Serivecs)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Serivec_T_RentalPremises");
+
+            entity.HasOne(d => d.T_Service_Compny).WithMany(p => p.T_RentalPremises_Serivecs)
+                .HasForeignKey(d => new { d.Service_Compny_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Serivec_T_Service_Compny");
+
+            entity.HasOne(d => d.T_Sevice_Compny_Type).WithMany(p => p.T_RentalPremises_Serivecs)
+                .HasForeignKey(d => new { d.Sevice_Compny_Type_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Serivec_T_Sevice_Compny_Type");
         });
 
         modelBuilder.Entity<T_RentalPremises_Water>(entity =>
@@ -412,6 +606,11 @@ public partial class Cont_maintContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(e => e.debts_value).HasColumnType("numeric(18, 3)");
+
+            entity.HasOne(d => d.T_RentalPremise).WithMany(p => p.T_RentalPremises_Waters)
+                .HasForeignKey(d => new { d.RentalPremises_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_RentalPremises_Water_T_RentalPremises");
         });
 
         modelBuilder.Entity<T_Section>(entity =>
@@ -424,6 +623,11 @@ public partial class Cont_maintContext : DbContext
             entity.Property(e => e.Secti)
                 .IsRequired()
                 .HasMaxLength(50);
+
+            entity.HasOne(d => d.T_Manage).WithMany(p => p.T_Sections)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Manag_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Section_T_Manage");
         });
 
         modelBuilder.Entity<T_Service_Compny>(entity =>
@@ -450,6 +654,32 @@ public partial class Cont_maintContext : DbContext
                 .HasMaxLength(50);
         });
 
+        modelBuilder.Entity<T_Sub_Doc>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PK_T_Sub_Docx");
+
+            entity.ToTable("T_Sub_Doc");
+
+            entity.Property(e => e.Docm_Image)
+                .IsRequired()
+                .HasColumnType("image");
+        });
+
+        modelBuilder.Entity<T_Sub_Doc_rental>(entity =>
+        {
+            entity.ToTable("T_Sub_Doc_rental");
+
+            entity.Property(e => e.Docm_Image)
+                .IsRequired()
+                .HasColumnType("image");
+
+            entity.HasOne(d => d.Doc).WithMany(p => p.T_Sub_Doc_rentals)
+                .HasPrincipalKey(p => p.Document_ID)
+                .HasForeignKey(d => d.Doc_ID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Sub_Doc_rental_T_RentalPremises_Documents");
+        });
+
         modelBuilder.Entity<T_Sub_PHones_Building>(entity =>
         {
             entity.HasKey(e => new { e.ID, e.Branch_ID, e.Location_ID, e.Location });
@@ -462,6 +692,21 @@ public partial class Cont_maintContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(e => e.nameuser).HasMaxLength(250);
+
+            entity.HasOne(d => d.T_Phones_Building).WithMany(p => p.T_Sub_PHones_Buildings)
+                .HasForeignKey(d => new { d.DOC_ID, d.Branch_ID, d.Location_ID, d.Location })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Sub_PHones_Building_T_Phones_Building");
+
+            entity.HasOne(d => d.T_Manage).WithMany(p => p.T_Sub_PHones_Buildings)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Mangment_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Sub_PHones_Building_T_Manage");
+
+            entity.HasOne(d => d.T_Section).WithMany(p => p.T_Sub_PHones_Buildings)
+                .HasForeignKey(d => new { d.Location, d.Location_ID, d.Branch_ID, d.Secti_ID })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_T_Sub_PHones_Building_T_Section");
         });
 
         modelBuilder.Entity<T_SystemUser>(entity =>

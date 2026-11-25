@@ -22,4 +22,20 @@ public partial class T_OwnedPremise
     public string details_Value { get; set; }
 
     public int? In_Location_ID { get; set; }
+
+    public virtual T_Inventory_Location T_Inventory_Location { get; set; }
+
+    public virtual ICollection<T_OwnedPremises_Contrect> T_OwnedPremises_Contrects { get; set; } = new List<T_OwnedPremises_Contrect>();
+
+    public virtual ICollection<T_OwnedPremises_Document> T_OwnedPremises_Documents { get; set; } = new List<T_OwnedPremises_Document>();
+
+    public virtual ICollection<T_OwnedPremises_Insuc> T_OwnedPremises_Insucs { get; set; } = new List<T_OwnedPremises_Insuc>();
+
+    public virtual ICollection<T_OwnedPremises_Phone> T_OwnedPremises_Phones { get; set; } = new List<T_OwnedPremises_Phone>();
+
+    public virtual ICollection<T_OwnedPremises_Power> T_OwnedPremises_Powers { get; set; } = new List<T_OwnedPremises_Power>();
+
+    public virtual ICollection<T_OwnedPremises_Serivec> T_OwnedPremises_Serivecs { get; set; } = new List<T_OwnedPremises_Serivec>();
+
+    public virtual ICollection<T_OwnedPremises_Water> T_OwnedPremises_Waters { get; set; } = new List<T_OwnedPremises_Water>();
 }

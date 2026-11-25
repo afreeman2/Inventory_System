@@ -18,4 +18,8 @@ public partial class T_Benef
     public DateOnly Date_Modify { get; set; }
 
     public string Location { get; set; }
+
+    public virtual ICollection<T_OwnedPremises_Contrect> T_OwnedPremises_Contrects { get; set; } = new List<T_OwnedPremises_Contrect>();
+
+    public virtual ICollection<T_RentalPremises_Contrect> T_RentalPremises_Contrects { get; set; } = new List<T_RentalPremises_Contrect>();
 }

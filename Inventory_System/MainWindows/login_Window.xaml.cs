@@ -46,7 +46,7 @@ namespace Inventory_System.MainWindows
                 .Where(branch => branch.st == true)
                 .Select(branch => branch.Branch)
                 .FirstOrDefaultAsync();
-
+            App.location = db.T_Locations.Take(1).AsNoTracking().Include(l => l.Branch).FirstOrDefault();
             App.Branch_Name = branchName ?? string.Empty;
             cboUserFullName.ItemsSource = new ObservableCollection<T_SystemUser>(users);
             cboUserFullName.Focus();
@@ -62,7 +62,7 @@ namespace Inventory_System.MainWindows
         private void out_Click(object sender, RoutedEventArgs e)
         {
             // يستخدم التأكيد أسماء الأزرار العربية ويجعل متابعة العمل الخيار الافتراضي.
-            if (Inventory_System.Dashboard.UiMessages.Confirm(this, "هل تريد إغلاق منظومة الخدمات والصيانة؟", closing: true))
+            if (Inventory_System.Dashboard.UiMessages.Confirm(this, "هل تريد إغلاق منظومة الحصر؟", closing: true))
                 Application.Current.Shutdown();
         }
         #endregion

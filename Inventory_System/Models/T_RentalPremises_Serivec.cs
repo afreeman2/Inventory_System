@@ -32,4 +32,10 @@ public partial class T_RentalPremises_Serivec
     public DateOnly To_Date { get; set; }
 
     public string Contrect_ID { get; set; }
+
+    public virtual T_RentalPremise T_RentalPremise { get; set; }
+
+    public virtual T_Service_Compny T_Service_Compny { get; set; }
+
+    public virtual T_Sevice_Compny_Type T_Sevice_Compny_Type { get; set; }
 }

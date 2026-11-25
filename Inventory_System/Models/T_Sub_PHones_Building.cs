@@ -21,9 +21,21 @@ public partial class T_Sub_PHones_Building
 
     public bool IN_Service { get; set; }
 
-    public int Mangment_ID { get; set; }
+    public short Mangment_ID { get; set; }
 
     public short Secti_ID { get; set; }
 
     public string nameuser { get; set; }
+   
+    public string locationphone =>
+       string.Join(" - ", new[]
+       {
+        T_Manage?.Manag,
+        T_Section?.Secti
+       }.Where(x => !string.IsNullOrWhiteSpace(x)));
+    public virtual T_Manage T_Manage { get; set; }
+
+    public virtual T_Phones_Building T_Phones_Building { get; set; }
+
+    public virtual T_Section T_Section { get; set; }
 }

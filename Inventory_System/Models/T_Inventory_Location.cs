@@ -20,4 +20,12 @@ public partial class T_Inventory_Location
     public int? types { get; set; }
 
     public string Address { get; set; }
+
+    public virtual ICollection<T_Furniture> T_Furnitures { get; set; } = new List<T_Furniture>();
+
+    public virtual T_Location T_Location { get; set; }
+
+    public virtual T_OwnedPremise T_OwnedPremises { get; set; }
+
+    public virtual ICollection<T_Phones_Building> T_Phones_Buildings { get; set; } = new List<T_Phones_Building>();
 }

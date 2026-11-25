@@ -22,4 +22,18 @@ public partial class T_RentalPremise
     public string details_Value { get; set; }
 
     public int In_Location_ID { get; set; }
+
+    public string build_name { get; set; }
+
+    public virtual ICollection<T_RentalPremises_Contrect> T_RentalPremises_Contrects { get; set; } = new List<T_RentalPremises_Contrect>();
+
+    public virtual ICollection<T_RentalPremises_Insuc> T_RentalPremises_Insucs { get; set; } = new List<T_RentalPremises_Insuc>();
+
+    public virtual ICollection<T_RentalPremises_Phone> T_RentalPremises_Phones { get; set; } = new List<T_RentalPremises_Phone>();
+
+    public virtual ICollection<T_RentalPremises_Power> T_RentalPremises_Powers { get; set; } = new List<T_RentalPremises_Power>();
+
+    public virtual ICollection<T_RentalPremises_Serivec> T_RentalPremises_Serivecs { get; set; } = new List<T_RentalPremises_Serivec>();
+
+    public virtual ICollection<T_RentalPremises_Water> T_RentalPremises_Waters { get; set; } = new List<T_RentalPremises_Water>();
 }

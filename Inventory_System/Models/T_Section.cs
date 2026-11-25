@@ -13,11 +13,17 @@ public partial class T_Section
 
     public short Manag_ID { get; set; }
 
-    public short Location_ID { get; set; }
+    public int Location_ID { get; set; }
 
-    public short Branch_ID { get; set; }
+    public int Branch_ID { get; set; }
 
     public DateOnly Date_Modify { get; set; }
 
     public string Location { get; set; }
+
+    public virtual ICollection<T_Furniture_List> T_Furniture_Lists { get; set; } = new List<T_Furniture_List>();
+
+    public virtual T_Manage T_Manage { get; set; }
+
+    public virtual ICollection<T_Sub_PHones_Building> T_Sub_PHones_Buildings { get; set; } = new List<T_Sub_PHones_Building>();
 }

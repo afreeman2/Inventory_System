@@ -1,0 +1,700 @@
+<mah:MetroWindow x:Class="Inventory_System.Furniture.FurnitureInventoryWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+    xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
+    xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+    xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:conv="clr-namespace:Inventory_System.converts"
+    xmlns:furniture="clr-namespace:Inventory_System.Furniture"
+    xmlns:vm="clr-namespace:Inventory_System.viewo_Model"
+    Title="حصر الأثاث" Width="1920" Height="1080" MinWidth="1080" MinHeight="700"
+    WindowState="Maximized" ResizeMode="CanResize" WindowStartupLocation="CenterOwner"
+    ShowTitleBar="False" ShowMinButton="False" ShowMaxRestoreButton="False" ShowCloseButton="False"
+    WindowStyle="None" AllowsTransparency="True" Background="Transparent" BorderThickness="0"
+    FlowDirection="RightToLeft" FontFamily="Segoe UI" FontSize="14" UseLayoutRounding="True"
+    SnapsToDevicePixels="True" dx:ThemeManager.ThemeName="Win11Light"
+    vm:RoundedWindowFrame.Enabled="True" Loaded="Window_Loaded" Closing="Window_Closing" PreviewKeyDown="Window_KeyDown">
+    <mah:MetroWindow.Resources>
+        <Style x:Key="Furniture.Combo" TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="MinHeight" Value="50"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True"/>
+        </Style>
+        <!-- تنسيق محررات DevExpress داخل إطار الخانة الموحد. -->
+        <Style x:Key="Furniture.DevExpressInput" TargetType="dxe:BaseEdit">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="#253A62"/>
+            <Setter Property="MinHeight" Value="48"/>
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True"/>
+        </Style>
+        <!-- يجعل التاريخ يملأ البورد الخارجي دون إطار مربع داخلي. -->
+        <Style x:Key="Furniture.Date" TargetType="DatePicker" BasedOn="{StaticResource MahApps.Styles.DatePicker}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="MinHeight" Value="48"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True"/>
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource Validation.FieldError}"/>
+        </Style>
+        <!-- إطار ومدخلات لوحة الحصر بمقاس متناسق مع بقية شاشات المنظومة. -->
+        <Style x:Key="Furniture.EntryField" TargetType="Border" BasedOn="{StaticResource Lookup.NameField}">
+            <Setter Property="MinHeight" Value="52"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="8,1"/>
+        </Style>
+        <Style x:Key="Furniture.Label" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#253A62"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,7"/>
+        </Style>
+        <!-- يطابق عرض العناوين مع الخلايا، ويحسب الأعمدة النسبية عند غياب قياسها المباشر. -->
+        <furniture:FurnitureGroupHeaderLayoutConverter x:Key="Furniture.GroupHeaderLayout"/>
+        <Style x:Key="Furniture.GroupHeaderButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#2B4873"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#2B4873"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Furniture.GroupCard" TargetType="Border">
+            <Setter Property="Background" Value="#E8EEF9"/>
+            <Setter Property="BorderBrush" Value="#C9D6EC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="Margin" Value="5,4"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding GroupLevel}" Value="1">
+                    <Setter Property="Background" Value="#F7F0E2"/>
+                    <Setter Property="BorderBrush" Value="#E6D5AD"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="Furniture.GroupExpandButton" TargetType="Button">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="#E8EEF9"/>
+            <Setter Property="BorderBrush" Value="#AFC1E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource Dcms.Primary}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="9">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#DCE6F6"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#CCD9EE"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- يبقي DevExpress في وضع حساب عرض الأعمدة، مع إخفاء صف الترويسة الأصلي لأن البديل يظهر تحت آخر مجموعة. -->
+        <Style x:Key="Furniture.HiddenNativeHeader" TargetType="dxg:GridColumnHeader">
+            <Setter Property="Height" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="MaxHeight" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <!-- ينسق بيانات رأس سجل الحصر كتقرير الصيانة، مع التفاف المحتوى داخل عرض الحقل. -->
+        <Style x:Key="Furniture.RecordFieldLayout" TargetType="DockPanel">
+            <Setter Property="Margin" Value="0,2,12,4"/>
+        </Style>
+        <Style x:Key="Furniture.RecordField" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#213F6A"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Furniture.RecordHeaderIcon" TargetType="icons:PackIconMaterial">
+            <Setter Property="Width" Value="17"/>
+            <Setter Property="Height" Value="17"/>
+            <Setter Property="Foreground" Value="#3B6FA5"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+        <!-- بطاقة السجل تتبع تخطيط رأس التكليف في تقارير الصيانة مع إبقاء إجراء الحذف. -->
+        <DataTemplate x:Key="Furniture.RecordHeader">
+            <Border Background="#EEF3FA" BorderBrush="#C8D7EB" BorderThickness="1" CornerRadius="8"
+                Padding="12,7" Margin="4,4,6,4">
+                <Grid FlowDirection="RightToLeft">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Style="{StaticResource Furniture.RecordFieldLayout}">
+                        <icons:PackIconMaterial DockPanel.Dock="Left" Kind="Identifier" Style="{StaticResource Furniture.RecordHeaderIcon}"/>
+                        <TextBlock Style="{StaticResource Furniture.RecordField}" FontSize="16" FontWeight="Bold">
+                            <Run Text="رقم الحصر: "/><Run Text="{Binding RowData.Row.Id, Mode=OneWay}" FlowDirection="LeftToRight"/>
+                        </TextBlock>
+                    </DockPanel>
+                    <DockPanel Grid.Column="1" Style="{StaticResource Furniture.RecordFieldLayout}">
+                        <icons:PackIconMaterial DockPanel.Dock="Left" Kind="CalendarMonthOutline" Style="{StaticResource Furniture.RecordHeaderIcon}"/>
+                        <TextBlock Style="{StaticResource Furniture.RecordField}">
+                            <Run Text="التاريخ: " FontWeight="SemiBold"/><Run Text="{Binding RowData.Row.DateText, Mode=OneWay}" FlowDirection="LeftToRight"/>
+                        </TextBlock>
+                    </DockPanel>
+                    <DockPanel Grid.Column="2" Style="{StaticResource Furniture.RecordFieldLayout}">
+                        <icons:PackIconMaterial DockPanel.Dock="Left" Kind="OfficeBuildingOutline" Style="{StaticResource Furniture.RecordHeaderIcon}"/>
+                        <TextBlock Style="{StaticResource Furniture.RecordField}" ToolTip="{Binding RowData.Row.Building}">
+                            <Run Text="المقر: " FontWeight="SemiBold"/><Run Text="{Binding RowData.Row.Building, Mode=OneWay}"/>
+                        </TextBlock>
+                    </DockPanel>
+                    <DockPanel Grid.Column="3" Style="{StaticResource Furniture.RecordFieldLayout}">
+                        <icons:PackIconMaterial DockPanel.Dock="Left" Kind="ShapeOutline" Style="{StaticResource Furniture.RecordHeaderIcon}"/>
+                        <TextBlock Style="{StaticResource Furniture.RecordField}" FontWeight="SemiBold">
+                            <Run Text="عدد الأنواع: "/><Run Text="{Binding RowData.Row.LineCount, Mode=OneWay}" FlowDirection="LeftToRight"/>
+                        </TextBlock>
+                    </DockPanel>
+                    <DockPanel Grid.Column="4" Style="{StaticResource Furniture.RecordFieldLayout}">
+                        <icons:PackIconMaterial DockPanel.Dock="Left" Kind="Counter" Style="{StaticResource Furniture.RecordHeaderIcon}"/>
+                        <TextBlock Style="{StaticResource Furniture.RecordField}" FontWeight="SemiBold">
+                            <Run Text="إجمالي العدد: "/><Run Text="{Binding RowData.Row.Quantity, Mode=OneWay}" FlowDirection="LeftToRight"/>
+                        </TextBlock>
+                    </DockPanel>
+                    <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Style="{StaticResource Furniture.RecordFieldLayout}">
+                        <icons:PackIconMaterial DockPanel.Dock="Left" Kind="TextBoxOutline" Style="{StaticResource Furniture.RecordHeaderIcon}"/>
+                        <TextBlock Style="{StaticResource Furniture.RecordField}" FontWeight="SemiBold" ToolTip="{Binding RowData.Row.Description}">
+                            <Run Text="بيان الحصر: " FontWeight="SemiBold"/><Run Text="{Binding RowData.Row.Description, Mode=OneWay}"/>
+                        </TextBlock>
+                    </DockPanel>
+                    <dx:SimpleButton Grid.Row="1" Grid.Column="4" Click="DeleteRecord_Click"
+                        ToolTip="حذف الحصر" Style="{StaticResource Dcms.DangerButton}" Width="36" Height="34" Padding="0" HorizontalAlignment="Right" Margin="0,2,12,4">
+                        <icons:PackIconMaterial Kind="TrashCanOutline" Width="18" Height="18" Foreground="#B42318"/>
+                    </dx:SimpleButton>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <!-- يعرض تعريف المجموعة ثم يضع رؤوس الأعمدة تحت اسم القسم أو الوحدة في مستوى التجميع الأخير. -->
+        <DataTemplate x:Key="Furniture.GroupRow">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="14"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Border Grid.ColumnSpan="2" Background="White" IsHitTestVisible="False"/>
+                <Button Grid.Row="1" Command="{Binding View.Commands.ChangeGroupExpanded}" CommandParameter="{Binding RowHandle.Value}"
+                    Style="{StaticResource Furniture.GroupExpandButton}" VerticalAlignment="Top" Margin="4,8,2,0"
+                    ToolTip="فتح أو إغلاق المجموعة" AutomationProperties.Name="فتح أو إغلاق المجموعة">
+                    <icons:PackIconMaterial Width="17" Height="17" Foreground="{StaticResource Dcms.Primary}">
+                        <icons:PackIconMaterial.Style>
+                            <Style TargetType="icons:PackIconMaterial">
+                                <Setter Property="Kind" Value="Plus"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRowExpanded}" Value="True">
+                                        <Setter Property="Kind" Value="Minus"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </icons:PackIconMaterial.Style>
+                    </icons:PackIconMaterial>
+                </Button>
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Furniture.GroupCard}" FlowDirection="LeftToRight" HorizontalAlignment="Stretch">
+                    <Grid FlowDirection="LeftToRight" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <icons:PackIconMaterial Width="20" Height="20" Foreground="{StaticResource Dcms.Primary}" VerticalAlignment="Center" Margin="5,0">
+                                <icons:PackIconMaterial.Style>
+                                    <Style TargetType="icons:PackIconMaterial">
+                                        <Setter Property="Kind" Value="Domain"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Dcms.Primary}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding GroupValue.Column.FieldName}" Value="Section">
+                                                <Setter Property="Kind" Value="FileTree"/>
+                                                <Setter Property="Foreground" Value="#A47A2B"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </icons:PackIconMaterial.Style>
+                            </icons:PackIconMaterial>
+                            <TextBlock Text="{Binding GroupValue.Column.Header}" Foreground="#253A62" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text=":" Foreground="#687188" Margin="2,0,5,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding GroupValue.Text}" Foreground="#253A62" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <!-- يتكرر شريط العناوين عند القروب الأخير فقط، فيفصل اسم الوحدة عن بنودها مباشرة. -->
+                <ItemsControl Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding View.VisibleColumns}" Background="#172747"
+                    FlowDirection="RightToLeft" HorizontalAlignment="Stretch" ClipToBounds="True">
+                    <ItemsControl.Style>
+                        <Style TargetType="ItemsControl">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsRowExpanded}" Value="True"/>
+                                        <Condition Binding="{Binding GroupLevel}" Value="1"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border MinHeight="38" BorderBrush="#45628D" BorderThickness="0,0,1,1">
+                                <Border.Width>
+                                    <MultiBinding Converter="{StaticResource Furniture.GroupHeaderLayout}">
+                                        <Binding Path="DataContext.View.TotalGroupAreaIndent" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
+                                        <Binding Path="DataContext.GroupLevel" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
+                                        <Binding Path="ActualWidth"/>
+                                        <Binding Path="ActualVisibleIndex"/>
+                                        <Binding Path="Width"/>
+                                        <Binding Path="DataContext.View.VisibleColumns" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
+                                        <Binding Path="DataContext.View.HorizontalViewport" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
+                                    </MultiBinding>
+                                </Border.Width>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border>
+                                        <Border.Width>
+                                            <MultiBinding Converter="{StaticResource Furniture.GroupHeaderLayout}">
+                                                <Binding Path="DataContext.View.TotalGroupAreaIndent" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
+                                                <Binding Path="DataContext.GroupLevel" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}"/>
+                                            </MultiBinding>
+                                        </Border.Width>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ActualVisibleIndex}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                    <Grid Grid.Column="1">
+                                        <Button Content="{Binding Header}" Command="{Binding Commands.ChangeColumnSortOrder}" Style="{StaticResource Furniture.GroupHeaderButton}"/>
+                                        <Button Width="28" Height="26" Margin="3,0" HorizontalAlignment="Left" ToolTip="تصفية العمود"
+                                            AutomationProperties.Name="تصفية العمود" Click="GroupColumnFilter_Click" Style="{StaticResource Furniture.GroupHeaderButton}">
+                                            <icons:PackIconMaterial Kind="FilterOutline" Width="14" Height="14">
+                                                <icons:PackIconMaterial.Style>
+                                                    <Style TargetType="icons:PackIconMaterial">
+                                                        <Setter Property="Foreground" Value="#C7D9F3"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsFiltered}" Value="True">
+                                                                <Setter Property="Foreground" Value="#EACD8C"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </icons:PackIconMaterial.Style>
+                                            </icons:PackIconMaterial>
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </DataTemplate>
+        <!-- يثبت لون نص الخلية ومحاذاته بعد ربطه بقيمة خلية DevExpress. -->
+        <Style x:Key="Furniture.GridCellText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#253A62"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+    </mah:MetroWindow.Resources>
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <!-- يحوي نموذج الحصر وبنوده؛ إغلاق اللوحة أو إلغاءها لا يكتب المسودة. -->
+            <mah:Flyout x:Name="EditorFlyout" Style="{StaticResource Maintenance.Flyout}" IsOpenChanged="EditorFlyout_Changed">
+                <Border Style="{StaticResource Maintenance.Flyout.Card}" MinHeight="820" MaxHeight="1100" MaxWidth="1880" Margin="12" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Background="#213F6A" CornerRadius="17,17,0,0" Padding="16,13">
+                            <DockPanel FlowDirection="LeftToRight">
+                                <dx:SimpleButton DockPanel.Dock="Left" Click="CancelEditor_Click" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق لوحة الحصر">
+                                    <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                                </dx:SimpleButton>
+                                <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Right">
+                                    <icons:PackIconMaterial Kind="ClipboardListOutline" Width="26" Height="26" Foreground="#EACD8C" Margin="0,0,9,0" />
+                                    <TextBlock x:Name="EditorHeading" Text="حصر أثاث جديد" Foreground="White" FontSize="20" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                        <Grid Margin="22">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="1.2*"/>
+                                    <ColumnDefinition Width="2.2*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="5,0">
+                                    <TextBlock Text="المقر" Style="{StaticResource Furniture.Label}" />
+                                    <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=EditorBuilding}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="OfficeBuildingOutline" Style="{StaticResource Lookup.NameIcon}"/>
+                                            <ComboBox x:Name="EditorBuilding" DisplayMemberPath="Name" SelectedValuePath="Id" Style="{StaticResource Furniture.Combo}" AutomationProperties.Name="المقر"/>
+                                        </DockPanel>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="5,0">
+                                    <TextBlock Text="تاريخ الحصر" Style="{StaticResource Furniture.Label}" />
+                                    <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=EditorDate}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="Calendar" Style="{StaticResource Lookup.NameIcon}"/>
+                                            <DatePicker x:Name="EditorDate" Style="{StaticResource Furniture.Date}" FontSize="16" AutomationProperties.Name="تاريخ الحصر"/>
+                                        </DockPanel>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Margin="5,0">
+                                    <TextBlock Text="بيان الحصر" Style="{StaticResource Furniture.Label}" />
+                                    <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=DescriptionInput}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="TextBoxOutline" Style="{StaticResource Lookup.NameIcon}"/>
+                                            <TextBox x:Name="DescriptionInput" MaxLength="250" Style="{StaticResource Lookup.NameText}" FontSize="16" AutomationProperties.Name="بيان الحصر"/>
+                                        </DockPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                            <Border Grid.Row="1" Background="#F3F5FA" BorderBrush="#D6DFED" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.2*"/>
+                                        <ColumnDefinition Width="1.2*"/>
+                                        <ColumnDefinition Width="1.45*"/>
+                                        <ColumnDefinition Width="1.2*"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="1.35*"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="4,0">
+                                        <TextBlock Text="الإدارة" Style="{StaticResource Furniture.Label}"/>
+                                        <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=ManagementChoice}">
+                                            <DockPanel>
+                                                <icons:PackIconMaterial Kind="Domain" Style="{StaticResource Lookup.NameIcon}"/>
+                                                <ComboBox x:Name="ManagementChoice" DisplayMemberPath="Manag" SelectedValuePath="Manag_ID" SelectionChanged="Management_Changed" Style="{StaticResource Furniture.Combo}" AutomationProperties.Name="الإدارة"/>
+                                            </DockPanel>
+                                        </Border>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="4,0">
+                                        <TextBlock Text="القسم أو الوحدة" Style="{StaticResource Furniture.Label}"/>
+                                        <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=SectionChoice}">
+                                            <DockPanel>
+                                                <icons:PackIconMaterial Kind="FileTree" Style="{StaticResource Lookup.NameIcon}"/>
+                                                <ComboBox x:Name="SectionChoice" DisplayMemberPath="Secti" SelectedValuePath="Secti_ID" Style="{StaticResource Furniture.Combo}" AutomationProperties.Name="القسم أو الوحدة"/>
+                                            </DockPanel>
+                                        </Border>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="4,0">
+                                        <TextBlock Text="نوع الأثاث" Style="{StaticResource Furniture.Label}"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="48"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=TypeChoice}">
+                                                <DockPanel>
+                                                    <icons:PackIconMaterial Kind="ShapeOutline" Style="{StaticResource Lookup.NameIcon}"/>
+                                                    <ComboBox x:Name="TypeChoice" DisplayMemberPath="Name" SelectedValuePath="Id" Style="{StaticResource Furniture.Combo}" AutomationProperties.Name="نوع الأثاث"/>
+                                                </DockPanel>
+                                            </Border>
+                                            <dx:SimpleButton Grid.Column="1" x:Name="AddTypeButton" Click="AddType_Click" Style="{StaticResource Dcms.SecondaryButton}" ToolTip="إضافة نوع أثاث" Margin="4,0,0,0" MinHeight="52" Padding="0">
+                                                <icons:PackIconMaterial Kind="Plus" Width="21" Height="21" Foreground="{StaticResource Dcms.Primary}"/>
+                                            </dx:SimpleButton>
+                                        </Grid>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3" Margin="4,0">
+                                        <TextBlock Text="باركود" Style="{StaticResource Furniture.Label}"/>
+                                        <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=BarcodeInput}">
+                                            <DockPanel>
+                                                <icons:PackIconMaterial Kind="Barcode" Style="{StaticResource Lookup.NameIcon}"/>
+                                                <dxe:TextEdit x:Name="BarcodeInput" MaxLength="200" Style="{StaticResource Furniture.DevExpressInput}" PreviewKeyDown="Barcode_PreviewKeyDown" AutomationProperties.Name="باركود الأثاث"/>
+                                            </DockPanel>
+                                        </Border>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="4" Margin="4,0">
+                                        <TextBlock Text="الكمية" Style="{StaticResource Furniture.Label}"/>
+                                        <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=QuantityInput}">
+                                            <dxe:SpinEdit x:Name="QuantityInput" MinValue="1" MaxValue="1000000" Increment="1" IsFloatValue="False" EditValue="1" Style="{StaticResource Furniture.DevExpressInput}" AutomationProperties.Name="الكمية"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="5" Margin="4,0">
+                                        <TextBlock Text="ملاحظات" Style="{StaticResource Furniture.Label}"/>
+                                        <Border Style="{StaticResource Furniture.EntryField}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=NotesInput}">
+                                            <DockPanel>
+                                                <icons:PackIconMaterial Kind="NoteTextOutline" Style="{StaticResource Lookup.NameIcon}"/>
+                                                <dxe:TextEdit x:Name="NotesInput" MaxLength="50" Style="{StaticResource Furniture.DevExpressInput}" AutomationProperties.Name="ملاحظات الصنف"/>
+                                            </DockPanel>
+                                        </Border>
+                                    </StackPanel>
+                                    <dx:SimpleButton Grid.Column="6" Click="AddDetail_Click" Style="{StaticResource Dcms.PrimaryButton}" Height="52" Margin="4,26,4,0" VerticalAlignment="Top">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="Plus" Width="19" Height="19" Margin="0,0,6,0"/>
+                                            <TextBlock Text="إضافة للصنف"/>
+                                        </StackPanel>
+                                    </dx:SimpleButton>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Row="2" Background="White" BorderBrush="#D6DFED" BorderThickness="1" CornerRadius="14" Padding="8" Margin="0,2,0,0">
+                                <dxg:GridControl x:Name="DetailsGrid" AutoGenerateColumns="None" SelectionMode="Row" AutoExpandAllGroups="True" AllowColumnMRUFilterList="False" AllowMRUFilterList="False">
+                                    <dxg:GridControl.View>
+                                        <dxg:TableView AllowEditing="False" ShowGroupPanel="False" ShowIndicator="False" ShowColumnHeaders="True" ColumnHeaderStyle="{StaticResource Furniture.HiddenNativeHeader}" ShowHorizontalLines="True" ShowVerticalLines="True" AutoWidth="True" GroupRowTemplate="{StaticResource Furniture.GroupRow}" HeaderHorizontalAlignment="Center" RowMinHeight="42" HeaderPanelMinHeight="0" NavigationStyle="Row" AllowPerPixelScrolling="True" />
+                                    </dxg:GridControl.View>
+                                    <dxg:GridControl.Columns>
+                                        <dxg:GridColumn FieldName="Type" Header="نوع الأثاث" Width="3*" MinWidth="220" HorizontalHeaderContentAlignment="Center">
+                                            <dxg:GridColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Value}" ToolTip="{Binding Value}" Style="{StaticResource Furniture.GridCellText}" TextTrimming="CharacterEllipsis"/>
+                                                </DataTemplate>
+                                            </dxg:GridColumn.CellTemplate>
+                                        </dxg:GridColumn>
+                                        <dxg:GridColumn FieldName="Management" Header="الإدارة" GroupIndex="0" ShowGroupedColumn="False" Width="220" HorizontalHeaderContentAlignment="Center"/>
+                                        <dxg:GridColumn FieldName="Section" Header="القسم أو الوحدة" GroupIndex="1" ShowGroupedColumn="False" Width="250" HorizontalHeaderContentAlignment="Center"/>
+                                        <dxg:GridColumn FieldName="Count" Header="الكمية" Width="100" MinWidth="100" MaxWidth="100" FixedWidth="True" HorizontalHeaderContentAlignment="Center">
+                                            <dxg:GridColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Value}" Style="{StaticResource Furniture.GridCellText}"/>
+                                                </DataTemplate>
+                                            </dxg:GridColumn.CellTemplate>
+                                        </dxg:GridColumn>
+                                        <dxg:GridColumn FieldName="Notes" Header="ملاحظات" Width="2.8*" MinWidth="260" HorizontalHeaderContentAlignment="Center">
+                                            <dxg:GridColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Value}" ToolTip="{Binding Value}" Style="{StaticResource Furniture.GridCellText}" TextTrimming="CharacterEllipsis"/>
+                                                </DataTemplate>
+                                            </dxg:GridColumn.CellTemplate>
+                                        </dxg:GridColumn>
+                                        <dxg:GridColumn Header="إزالة" Width="75" FixedWidth="True" AllowSorting="False" AllowColumnFiltering="False" HorizontalHeaderContentAlignment="Center">
+                                            <dxg:GridColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <dx:SimpleButton Click="RemoveDetail_Click" ToolTip="إزالة الصنف" HorizontalAlignment="Center" Padding="4">
+                                                        <icons:PackIconMaterial Kind="TrashCanOutline" Foreground="#B42318" Width="20" Height="20"/>
+                                                    </dx:SimpleButton>
+                                                </DataTemplate>
+                                            </dxg:GridColumn.CellTemplate>
+                                        </dxg:GridColumn>
+                                    </dxg:GridControl.Columns>
+                                </dxg:GridControl>
+                            </Border>
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,2">
+                                <dx:SimpleButton x:Name="SaveButton" Click="SaveEditor_Click" Style="{StaticResource Dcms.PrimaryButton}" Height="56" MinWidth="170" Margin="6">
+                                    <StackPanel Orientation="Horizontal">
+                                        <icons:PackIconMaterial Kind="ContentSaveOutline" Width="21" Height="21" Margin="0,0,7,0"/>
+                                        <TextBlock Text="حفظ الحصر" FontSize="16"/>
+                                    </StackPanel>
+                                </dx:SimpleButton>
+                                <dx:SimpleButton Click="CancelEditor_Click" Style="{StaticResource Dcms.SecondaryButton}" Height="56" MinWidth="140" Margin="6">
+                                    <StackPanel Orientation="Horizontal">
+                                        <icons:PackIconMaterial Kind="Close" Width="21" Height="21" Margin="0,0,7,0"/>
+                                        <TextBlock Text="إلغاء" FontSize="16"/>
+                                    </StackPanel>
+                                </dx:SimpleButton>
+                            </StackPanel>
+                        </Grid>
+                    </DockPanel>
+                </Border>
+            </mah:Flyout>
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+    <Grid Background="#F4F6FA">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="#213F6A" Padding="20,14" CornerRadius="18,18,0,0">
+            <DockPanel FlowDirection="LeftToRight">
+                <dx:SimpleButton Click="Close_Click" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق الشاشة">
+                    <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                </dx:SimpleButton>
+                <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Right">
+                    <icons:PackIconMaterial Kind="ClipboardListOutline" Width="32" Height="32" Foreground="#EACD8C" Margin="0,0,12,0" />
+                    <StackPanel>
+                        <TextBlock Text="حصر الأثاث" Foreground="White" FontSize="22" FontWeight="SemiBold"/>
+                        <TextBlock Text="إدارة سجلات الحصر وبنود الأثاث حسب المقر" Foreground="#D6E2F3" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <Border Grid.Row="1" Background="White" BorderBrush="#D6DFED" BorderThickness="1" CornerRadius="13" Margin="20,14,20,10" Padding="12">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <dx:SimpleButton Click="NewRecord_Click" Style="{StaticResource Dcms.PrimaryButton}" MinWidth="145" Margin="4">
+                        <StackPanel Orientation="Horizontal">
+                            <icons:PackIconMaterial Kind="Plus" Width="19" Height="19" Margin="0,0,6,0"/>
+                            <TextBlock Text="حصر جديد"/>
+                        </StackPanel>
+                    </dx:SimpleButton>
+                    <dx:SimpleButton Click="Search_Click" Style="{StaticResource Dcms.SecondaryButton}" MinWidth="110" Margin="4">
+                        <StackPanel Orientation="Horizontal">
+                            <icons:PackIconMaterial Kind="Magnify" Width="18" Height="18" Margin="0,0,6,0"/>
+                            <TextBlock Text="بحث"/>
+                        </StackPanel>
+                    </dx:SimpleButton>
+                    <dx:SimpleButton Click="Refresh_Click" Style="{StaticResource Dcms.SecondaryButton}" MinWidth="110" Margin="4">
+                        <StackPanel Orientation="Horizontal">
+                            <icons:PackIconMaterial Kind="Refresh" Width="18" Height="18" Margin="0,0,6,0"/>
+                            <TextBlock Text="تحديث"/>
+                        </StackPanel>
+                    </dx:SimpleButton>
+                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2.2*"/>
+                        <ColumnDefinition Width="1.1*"/>
+                        <ColumnDefinition Width="1.1*"/>
+                        <ColumnDefinition Width="1.6*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource Furniture.EntryField}" Margin="4,0" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=FilterBuilding}">
+                        <DockPanel>
+                            <icons:PackIconMaterial Kind="OfficeBuildingOutline" Style="{StaticResource Lookup.NameIcon}"/>
+                            <ComboBox x:Name="FilterBuilding" DisplayMemberPath="Name" SelectedValuePath="Id" SelectionChanged="FilterBuilding_Changed" Style="{StaticResource Furniture.Combo}" AutomationProperties.Name="تصفية المقر"/>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource Furniture.EntryField}" Margin="4,0" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=FromDate}">
+                        <DockPanel>
+                            <icons:PackIconMaterial Kind="CalendarStart" Style="{StaticResource Lookup.NameIcon}"/>
+                            <DatePicker x:Name="FromDate" Style="{StaticResource Furniture.Date}" AutomationProperties.Name="البحث من تاريخ"/>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource Furniture.EntryField}" Margin="4,0" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=ToDate}">
+                        <DockPanel>
+                            <icons:PackIconMaterial Kind="CalendarEnd" Style="{StaticResource Lookup.NameIcon}"/>
+                            <DatePicker x:Name="ToDate" Style="{StaticResource Furniture.Date}" AutomationProperties.Name="البحث إلى تاريخ"/>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Column="3" Style="{StaticResource Furniture.EntryField}" Margin="4,0" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=RecordsSearch}">
+                        <DockPanel>
+                            <icons:PackIconMaterial Kind="Magnify" Style="{StaticResource Lookup.NameIcon}"/>
+                            <dxg:GridSearchControl x:Name="RecordsSearch" View="{Binding ElementName=RecordsView, Mode=OneTime}" Style="{StaticResource Lookup.NameSearch}" NullText="ابحث في الحصر وبنوده" AutomationProperties.Name="بحث في سجلات الحصر"/>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </DockPanel>
+        </Border>
+        <Border Grid.Row="2" Margin="20,0,20,10" Background="White" BorderBrush="#D6DFED" BorderThickness="1" CornerRadius="15" Padding="8">
+            <dxg:GridControl x:Name="RecordsGrid" AutoGenerateColumns="None" SelectionMode="Row" MouseDoubleClick="Record_DoubleClick" AllowColumnMRUFilterList="False" AllowMRUFilterList="False">
+                <dxg:GridControl.View>
+                    <dxg:TableView x:Name="RecordsView" AllowEditing="False" ShowGroupPanel="False" ShowIndicator="False" ShowColumnHeaders="False" ShowDetailButtons="True" AutoWidth="True" ShowSearchPanelMode="Never" HeaderHorizontalAlignment="Center" RowMinHeight="42" HeaderPanelMinHeight="42" NavigationStyle="Row" SearchStringToFilterCriteria="Records_SearchStringToFilterCriteria" />
+                </dxg:GridControl.View>
+                <dxg:GridControl.Columns>
+                    <dxg:GridColumn FieldName="Id" Header="" Width="*" MinWidth="800" HorizontalHeaderContentAlignment="Center">
+                        <dxg:GridColumn.CellTemplate>
+                            <DataTemplate>
+                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource Furniture.RecordHeader}"/>
+                            </DataTemplate>
+                        </dxg:GridColumn.CellTemplate>
+                    </dxg:GridColumn>
+                    <dxg:GridColumn FieldName="Building" Header="المقر" Visible="False" Width="240" HorizontalHeaderContentAlignment="Center"/>
+                    <dxg:GridColumn FieldName="Description" Header="بيان الحصر" Visible="False" Width="*" MinWidth="220" HorizontalHeaderContentAlignment="Center"/>
+                    <dxg:GridColumn FieldName="DateText" Header="التاريخ" Visible="False" Width="150" HorizontalHeaderContentAlignment="Center"/>
+                    <dxg:GridColumn FieldName="LineCount" Header="عدد الأنواع" Visible="False" Width="130" HorizontalHeaderContentAlignment="Center"/>
+                    <dxg:GridColumn FieldName="Quantity" Header="إجمالي العدد" Visible="False" Width="140" HorizontalHeaderContentAlignment="Center"/>
+                </dxg:GridControl.Columns>
+                <!-- يعرض كل رأس وبنوده داخل القائمة نفسها، مع تجميع البنود حسب الإدارة ثم القسم. -->
+                <dxg:GridControl.DetailDescriptor>
+                    <dxg:DataControlDetailDescriptor ItemsSourcePath="Details" Margin="8">
+                        <dxg:DataControlDetailDescriptor.DataControl>
+                            <dxg:GridControl AutoGenerateColumns="None" SelectionMode="Row" AutoExpandAllGroups="True" AllowColumnMRUFilterList="False" AllowMRUFilterList="False">
+                                <dxg:GridControl.View>
+                                    <dxg:TableView AllowEditing="False" ShowGroupPanel="False" ShowIndicator="False" ShowColumnHeaders="True" ColumnHeaderStyle="{StaticResource Furniture.HiddenNativeHeader}" ShowHorizontalLines="True" ShowVerticalLines="True" AutoWidth="True" GroupRowTemplate="{StaticResource Furniture.GroupRow}" HeaderHorizontalAlignment="Center" RowMinHeight="42" HeaderPanelMinHeight="0" NavigationStyle="Row" />
+                                </dxg:GridControl.View>
+                                <dxg:GridControl.Columns>
+                                    <dxg:GridColumn FieldName="Management" 
+                                                    Header="الإدارة" GroupIndex="0"
+                                                    ShowGroupedColumn="False"
+                                                    Width="1.2*" HorizontalHeaderContentAlignment="Center" />
+                                    <dxg:GridColumn FieldName="Section" Header="القسم أو الوحدة" GroupIndex="1"
+                                                    ShowGroupedColumn="False" Width="1.4*"
+                                                    HorizontalHeaderContentAlignment="Center" />
+                                    <!-- تبقى بيانات الإدارة والقسم في صفوف التجميع، وتوزع الأعمدة الظاهرة على عرض التفاصيل كاملًا. -->
+                                    <dxg:GridColumn FieldName="Type" Header="نوع الأثاث" Width="650" MinWidth="650" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Value}" ToolTip="{Binding Value}" Style="{StaticResource Furniture.GridCellText}" TextTrimming="CharacterEllipsis"/>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="Count" Header="الكمية" Width="100" MinWidth="100" MaxWidth="100" FixedWidth="True" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Value}" Style="{StaticResource Furniture.GridCellText}"/>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                    <dxg:GridColumn FieldName="Notes" Header="ملاحظات" Width="*" MinWidth="600" HorizontalHeaderContentAlignment="Center">
+                                        <dxg:GridColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Value}" ToolTip="{Binding Value}" Style="{StaticResource Furniture.GridCellText}" TextTrimming="CharacterEllipsis"/>
+                                            </DataTemplate>
+                                        </dxg:GridColumn.CellTemplate>
+                                    </dxg:GridColumn>
+                                </dxg:GridControl.Columns>
+                            </dxg:GridControl>
+                        </dxg:DataControlDetailDescriptor.DataControl>
+                    </dxg:DataControlDetailDescriptor>
+                </dxg:GridControl.DetailDescriptor>
+            </dxg:GridControl>
+        </Border>
+        <TextBlock Grid.Row="3" x:Name="StatusText" Margin="22,0,22,14" Foreground="#69758A" />
+    </Grid>
+</mah:MetroWindow>

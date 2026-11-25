@@ -85,6 +85,46 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <!-- بطاقات الحصر مربعة، مع تمييز واضح للتحويم والتركيز وحالة الصلاحية. -->
+            <Style x:Key="Premises.SquareTile" TargetType="dx:SimpleButton" BasedOn="{StaticResource Workspace.Tile}">
+                <Setter Property="Width" Value="216"/>
+                <Setter Property="Height" Value="216"/>
+                <Setter Property="MinHeight" Value="216"/>
+                <Setter Property="Margin" Value="8"/>
+                <Setter Property="Padding" Value="18"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="dx:SimpleButton">
+                            <Border x:Name="SquareSurface" Background="{TemplateBinding Background}"
+                                    BorderBrush="{StaticResource Workspace.Line}" BorderThickness="1" CornerRadius="18">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#172747" BlurRadius="14" ShadowDepth="2" Opacity="0.07"/>
+                                </Border.Effect>
+                                <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="SquareSurface" Property="Background" Value="{StaticResource Workspace.Tint}"/>
+                                    <Setter TargetName="SquareSurface" Property="BorderBrush" Value="{StaticResource Workspace.Primary}"/>
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="SquareSurface" Property="BorderBrush" Value="{StaticResource Workspace.Copper}"/>
+                                    <Setter TargetName="SquareSurface" Property="BorderThickness" Value="2"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="SquareSurface" Property="Background" Value="#DEE7F5"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.42"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
             <Style x:Key="Workspace.Ribbon" TargetType="dx:SimpleButton" BasedOn="{StaticResource Dcms.RibbonButton}">
                 <Setter Property="Height" Value="78"/>
                 <Setter Property="MinHeight" Value="78"/>
@@ -103,8 +143,10 @@
             <!-- تتحرك اللوحة من الأسفل وتتمركز البطاقة داخل المساحة المرئية للحاوية. -->
             <mah:Flyout x:Name="PremisesFlyout" Style="{StaticResource Maintenance.Flyout}"
                         Width="Auto" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type mah:FlyoutsControl}}}">
-                <Border Style="{StaticResource Maintenance.Flyout.Card}" HorizontalAlignment="Center"
-                        VerticalAlignment="Center" Width="980">
+                <!-- يحافظ التحجيم المتناسب على مربعية الأزرار وظهورها كاملة على النوافذ الأصغر. -->
+                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="24"
+                         HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border x:Name="PremisesMenuCard" Style="{StaticResource Maintenance.Flyout.Card}" Width="780" Margin="0">
                     <DockPanel>
                         <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="18,10">
                             <DockPanel>
@@ -119,28 +161,35 @@
                                 </StackPanel>
                             </DockPanel>
                         </Border>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="500" Padding="16">
+                        <Border Background="{StaticResource Workspace.Canvas}" CornerRadius="0,0,17,17" Padding="14">
                             <ItemsControl x:Name="PremisesChoices">
                                 <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate>
+                                    <ItemsPanelTemplate><UniformGrid Columns="3"/></ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <dx:SimpleButton Click="PremisesCard_Click" IsEnabled="{Binding IsEnabled}"
-                                                         Style="{StaticResource Workspace.Tile}" MinHeight="68"
+                                                         Style="{StaticResource Premises.SquareTile}"
                                                          AutomationProperties.Name="{Binding Title}" ToolTip="{Binding Description}" ToolTipService.ShowOnDisabled="True">
-                                            <StackPanel Orientation="Horizontal">
-                                                <icons:PackIconMaterial Kind="{Binding Icon}" Width="27" Height="27" Margin="0,0,12,0"
-                                                                        VerticalAlignment="Center" Foreground="{StaticResource Workspace.Primary}"/>
-                                                <TextBlock Text="{Binding Title}" VerticalAlignment="Center" FontSize="17" FontWeight="SemiBold"/>
+                                            <StackPanel HorizontalAlignment="Center">
+                                                <Border Width="78" Height="78" CornerRadius="24" Background="{StaticResource Workspace.Tint}"
+                                                        HorizontalAlignment="Center" Margin="0,0,0,18">
+                                                    <icons:PackIconMaterial Kind="{Binding Icon}" Width="42" Height="42"
+                                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                            Foreground="{StaticResource Workspace.Primary}"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding Title}" TextAlignment="Center" TextWrapping="Wrap"
+                                                           MaxWidth="176" FontSize="18" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource Workspace.Ink}" HorizontalAlignment="Center"/>
                                             </StackPanel>
                                         </dx:SimpleButton>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </ScrollViewer>
+                        </Border>
                     </DockPanel>
                 </Border>
+                </Viewbox>
             </mah:Flyout>
         </mah:FlyoutsControl>
     </mah:MetroWindow.Flyouts>
@@ -403,7 +452,7 @@
                                             <icons:PackIconMaterial DockPanel.Dock="Left" Kind="CalendarOutline" Width="17" Height="17"
                                                                     VerticalAlignment="Center" Foreground="{StaticResource Workspace.Primary}" IsHitTestVisible="False"/>
                                             <!-- تنسيق السنة كعدد صحيح متصل أثناء العرض والتحرير. -->
-                                            <dxe:SpinEdit x:Name="StatisticsYear" EditValueType="{x:Type sys:Int32}" IsFloatValue="False" MinValue="1900" MaxValue="9999"
+                                            <dxe:SpinEdit conv:FieldFeedback.Enabled="True" x:Name="StatisticsYear" EditValueType="{x:Type sys:Int32}" IsFloatValue="False" MinValue="1900" MaxValue="9999"
                                                           MaskType="Numeric" Mask="d" MaskUseAsDisplayFormat="True"
                                                           ShowEditorButtons="True" Height="34" Width="92" FlowDirection="LeftToRight" Background="Transparent"
                                                           AutomationProperties.Name="سنة إحصاءات المقرات"/>

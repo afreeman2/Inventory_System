@@ -7,13 +7,13 @@ namespace Inventory_System.Models;
 
 public partial class T_Furniture_Type
 {
-    public short Furniture_Type_ID { get; set; }
+    public int Furniture_Type_ID { get; set; }
 
     public string Furniture_Type { get; set; }
 
-    public short Location_ID { get; set; }
+    public int Location_ID { get; set; }
 
-    public short Branch_ID { get; set; }
+    public int Branch_ID { get; set; }
 
     public DateOnly Date_Modify { get; set; }
 
@@ -24,4 +24,8 @@ public partial class T_Furniture_Type
     public int Class_id { get; set; }
 
     public string fut_char { get; set; }
+
+    public virtual ICollection<T_Furniture_List> T_Furniture_Lists { get; set; } = new List<T_Furniture_List>();
+
+    public virtual T_furniture_Class T_furniture_Class { get; set; }
 }

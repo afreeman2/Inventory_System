@@ -30,4 +30,10 @@ public partial class T_OwnedPremises_Insuc
     public DateOnly From_Date { get; set; }
 
     public DateOnly To_Date { get; set; }
+
+    public virtual T_OwnedPremise T_OwnedPremise { get; set; }
+
+    public virtual T_instu_Type T_instu_Type { get; set; }
+
+    public virtual T_insu_Compny T_insu_Compny { get; set; }
 }

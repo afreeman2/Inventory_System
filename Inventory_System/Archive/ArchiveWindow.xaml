@@ -1,0 +1,639 @@
+<!-- عارض PDF عنصر أصلي؛ النافذة غير الشفافة تضمن رسمه وظهور الأرشيف على كل الشاشات، وتبقى الحواف دائرية عبر RoundedWindowFrame. -->
+<mah:MetroWindow x:Class="Inventory_System.Archive.ArchiveWindow" 
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+                 xmlns:pdf="http://schemas.devexpress.com/winfx/2008/xaml/pdf"
+                 xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks" 
+                 xmlns:bars="http://schemas.devexpress.com/winfx/2008/xaml/bars"
+                 xmlns:dv="http://schemas.devexpress.com/winfx/2008/xaml/documentviewer"
+                 xmlns:conv="clr-namespace:Inventory_System.converts"
+                 xmlns:vm="clr-namespace:Inventory_System.viewo_Model" 
+                 Title="أرشيف المباني" Width="1920" Height="1080" MinWidth="960"
+                 MinHeight="700" WindowState="Maximized" ResizeMode="CanResize"
+                 WindowStartupLocation="CenterOwner" ShowTitleBar="False" ShowCloseButton="False" WindowStyle="None"
+                 AllowsTransparency="False" Background="#F8F9FC"
+                 Icon="pack://application:,,,/Inventory_System;component/Resources/SsfLogo-transparent.png"
+                 BorderThickness="0" FlowDirection="RightToLeft"
+                 FontFamily="Segoe UI" FontSize="15" dx:ThemeManager.ThemeName="Win11Light"
+                 vm:RoundedWindowFrame.Enabled="True" Loaded="Window_Loaded" IsCloseButtonEnabled="False"
+                 IsMinButtonEnabled="False" IsMaxRestoreButtonEnabled="False" ShowMinButton="False" ShowMaxRestoreButton="False"
+                 PreviewKeyDown="Window_KeyDown" Closing="Window_Closing">
+    <mah:MetroWindow.Resources>
+        <Style x:Key="Contracts.Label" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource Workspace.Ink}"/>
+        </Style>
+        <Style x:Key="Contracts.Field" TargetType="Border" BasedOn="{StaticResource Dcms.IconField}">
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource Validation.FieldError}"/>
+            <Setter Property="MinHeight" Value="48"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Style.Triggers>
+                <!-- تحتفظ الخانة الممتلئة بتمييز واضح أثناء التركيز. -->
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="vm:InputFieldState.HasValue" Value="True"/>
+                        <Condition Property="IsKeyboardFocusWithin" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="#DCE6F5"/>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="Contracts.Icon" TargetType="icons:PackIconMaterial">
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{StaticResource Workspace.Primary}"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+        <Style x:Key="Contracts.Combo" TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True"/>
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource Validation.FieldError}"/>
+        </Style>
+
+
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#D8E1EE" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="Padding" Value="14" />
+        </Style>
+        <!-- نرسم تحديد المقر بحواف دائرية حتى لا يظهر مستطيل النظام فوق البطاقة. -->
+        <Style x:Key="BuildingItem" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="SelectionBorder" Background="Transparent" BorderBrush="Transparent"
+                                BorderThickness="1" CornerRadius="17" Padding="1">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="SelectionBorder" Property="BorderBrush" Value="#3559A0" />
+                                <Setter TargetName="SelectionBorder" Property="Background" Value="#EEF3FB" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="SelectionBorder" Property="BorderBrush" Value="#8AA2CC" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Panel" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Background" Value="#F3F5FA" />
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="CornerRadius" Value="15" />
+        </Style>
+        <!-- زر الإضافة الدائري عائم داخل كل قسم، مع إبقاء اسمه متاحًا لقارئ الشاشة. -->
+        <Style x:Key="AddButton" TargetType="Button">
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#3559A0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="24" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="DatePickerTextBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DatePickerTextBox">
+                        <Grid>
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                            <TextBlock x:Name="DateHint" Text="اختر التاريخ" Foreground="#7B8494" Margin="5,0" VerticalAlignment="Center" IsHitTestVisible="False" Visibility="Collapsed" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Text" Value="">
+                                <Setter TargetName="DateHint" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Field" TargetType="Border" BasedOn="{StaticResource Lookup.NameField}" />
+        <Style x:Key="Date" TargetType="DatePicker">
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="MinHeight" Value="40" />
+        </Style>
+        <Style x:Key="Combo" TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox}">
+            <Setter Property="conv:FieldFeedback.Enabled" Value="True" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="MinHeight" Value="40" />
+        </Style>
+        <Style x:Key="Heading" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Workspace.Header}" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="4,3,4,10" />
+        </Style>
+        <DataTemplate x:Key="IconChoice">
+            <StackPanel Orientation="Horizontal">
+                <icons:PackIconMaterial Kind="{Binding Kind}" Width="24" Height="24" Margin="5" />
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+        <!-- الأزرار والتحديد خارج مساحة النقر المزدوج، حتى لا يفتح الحذف أو التحديد لوحة التحرير. -->
+        <DataTemplate x:Key="AlbumCard">
+            <Border Width="230" MouseLeftButtonDown="Album_MouseDown" Cursor="Hand" ToolTip="نقرة لعرض المستندات؛ نقرتان لتعديل الألبوم">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource Card}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="Background" Value="#E7EDF9" />
+                                <Setter Property="BorderBrush" Value="#3559A0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid FlowDirection="LeftToRight">
+                        <CheckBox IsChecked="{Binding IsSelected}" Content="تحديد" HorizontalAlignment="Right" FlowDirection="RightToLeft" />
+                        <Button HorizontalAlignment="Left" Click="DeleteAlbum_Click" ToolTip="حذف الألبوم ومحتواه" AutomationProperties.Name="حذف الألبوم" Background="Transparent" BorderThickness="0" Foreground="#AD3E48">
+                            <icons:PackIconMaterial Kind="TrashCanOutline" Width="20" Height="20" />
+                        </Button>
+                    </Grid>
+                    <icons:PackIconMaterial Grid.Row="1" Kind="{Binding Icon}" Width="56" Height="56" Foreground="#B18B40" HorizontalAlignment="Center" Margin="0,12" />
+                    <TextBlock Grid.Row="2" Text="{Binding Title}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" FontSize="17" />
+                    <TextBlock Grid.Row="3" Text="{Binding DateText}" TextAlignment="Center" Foreground="#69758A" Margin="0,8" />
+                    <TextBlock Grid.Row="4" Text="{Binding CountText}" TextAlignment="Center" Foreground="#3559A0" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="DocumentCard">
+            <Border Width="230" MouseLeftButtonDown="Document_MouseDown" Cursor="Hand" ToolTip="نقرة للمعاينة؛ نقرتان لتعديل المستند">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource Card}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="Background" Value="#E7EDF9" />
+                                <Setter Property="BorderBrush" Value="#3559A0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid FlowDirection="LeftToRight">
+                        <CheckBox IsChecked="{Binding IsSelected}" Content="تحديد" HorizontalAlignment="Right" FlowDirection="RightToLeft" />
+                        <Button HorizontalAlignment="Left" Click="DeleteDocument_Click" ToolTip="حذف المستند" AutomationProperties.Name="حذف المستند" Background="Transparent" BorderThickness="0" Foreground="#AD3E48">
+                            <icons:PackIconMaterial Kind="TrashCanOutline" Width="20" Height="20" />
+                        </Button>
+                    </Grid>
+                    <icons:PackIconMaterial Grid.Row="1" Kind="{Binding Icon}" Width="56" Height="56" Foreground="#3559A0" HorizontalAlignment="Center" Margin="0,12" />
+                    <TextBlock Grid.Row="2" Text="{Binding Title}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" FontSize="17" />
+                    <TextBlock Grid.Row="3" Text="{Binding DateText}" TextAlignment="Center" Foreground="#69758A" Margin="0,8" />
+                    <TextBlock Grid.Row="4" Text="{Binding Subject}" TextAlignment="Center" TextWrapping="Wrap" MaxHeight="65" TextTrimming="CharacterEllipsis" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </mah:MetroWindow.Resources>
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+
+            <!--#region خاص بالالبومات -->
+
+            <mah:Flyout x:Name="AlbumFlyout" Style="{StaticResource Maintenance.Flyout}" IsOpenChanged="AlbumFlyout_Changed">
+                <!-- أصبح أقصى عرض لمحرر الألبوم 500 بكسل بدلًا من 1000، مع بقاء التمرير للشاشات الصغيرة. -->
+                <Border Style="{StaticResource Maintenance.Flyout.Card}" MaxWidth="500" MaxHeight="600">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="18">
+                            <DockPanel FlowDirection="LeftToRight">
+                                <dx:SimpleButton DockPanel.Dock="Left" Click="CancelAlbum_Click" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق">
+                                    <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                                </dx:SimpleButton>
+                                <TextBlock x:Name="AlbumEditorTitle" Text="ألبوم جديد" Foreground="White" FontSize="22" FlowDirection="RightToLeft" HorizontalAlignment="Right" />
+                            </DockPanel>
+                        </Border>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="22">
+                                <TextBlock Text="اسم الألبوم" />
+                                <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=AlbumTitle}">
+                                    <DockPanel>
+                                        <icons:PackIconMaterial Kind="FolderOutline" Style="{StaticResource Lookup.NameIcon}" />
+                                        <TextBox x:Name="AlbumTitle" Style="{StaticResource Lookup.NameText}" MaxLength="250" />
+                                    </DockPanel>
+                                </Border>
+                                <TextBlock Text="تاريخ الإنشاء" Margin="0,12,0,3" />
+                                <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=AlbumDate}">
+                                    <DockPanel>
+                                        <icons:PackIconMaterial Kind="Calendar" Style="{StaticResource Lookup.NameIcon}" />
+                                        <DatePicker x:Name="AlbumDate" Style="{StaticResource Date}" />
+                                    </DockPanel>
+                                </Border>
+                                <TextBlock Text="أيقونة الألبوم" Margin="0,12,0,3" />
+                                <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=AlbumIcon}">
+                                    <DockPanel>
+                                        <icons:PackIconMaterial Kind="PaletteOutline" Style="{StaticResource Lookup.NameIcon}" />
+                                        <ComboBox x:Name="AlbumIcon" Style="{StaticResource Combo}" ItemTemplate="{StaticResource IconChoice}" />
+                                    </DockPanel>
+                                </Border>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                                    <dx:SimpleButton Click="SaveAlbum_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="ContentSaveOutline" Width="20" Height="20" Margin="5" />
+                                            <TextBlock Text="حفظ الألبوم" />
+                                        </StackPanel>
+                                    </dx:SimpleButton>
+                                    <dx:SimpleButton Click="CancelAlbum_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="5">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="Close" Width="20" Height="20" Margin="5" />
+                                            <TextBlock Text="إلغاء" />
+                                        </StackPanel>
+                                    </dx:SimpleButton>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </mah:Flyout>
+            <!--#endregion-->
+
+
+            <!-- جميع أدوات التحرير والمعاينة والماسح معرفة في XAML؛ C# يدير المسودة فقط. -->
+
+
+            <!--#region خاص بالمستندات -->
+
+            <mah:Flyout x:Name="DocumentFlyout" Style="{StaticResource Maintenance.Flyout}" IsOpenChanged="DocumentFlyout_Changed">
+                <Border Style="{StaticResource Maintenance.Flyout.Card}">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="17,17,0,0" Padding="15">
+                            <DockPanel FlowDirection="LeftToRight">
+                                <dx:SimpleButton DockPanel.Dock="Left" Click="CancelDocument_Click" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق">
+                                    <icons:PackIconMaterial Kind="Close" Width="22" Height="22" />
+                                </dx:SimpleButton>
+                                <TextBlock x:Name="DocumentEditorTitle" Foreground="White" FontSize="22" FlowDirection="RightToLeft" HorizontalAlignment="Right" />
+                            </DockPanel>
+                        </Border>
+                        <Grid Margin="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="330" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="DocumentFields" Margin="0,0,14,0">
+                                    <TextBlock Text="عنوان المستند" />
+                                    <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=DocumentTitle}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="FileDocumentOutline" Style="{StaticResource Lookup.NameIcon}" />
+                                            <TextBox x:Name="DocumentTitle" MaxLength="250" Style="{StaticResource Lookup.NameText}" />
+                                        </DockPanel>
+                                    </Border>
+                                    <TextBlock Text="تاريخ المستند" Margin="0,12,0,3" />
+                                    <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=DocumentDate}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="Calendar" Style="{StaticResource Lookup.NameIcon}" />
+                                            <DatePicker x:Name="DocumentDate" Style="{StaticResource Date}" />
+                                        </DockPanel>
+                                    </Border>
+                                    <TextBlock Text="موضوع المستند" Margin="0,12,0,3" />
+                                    <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=DocumentSubject}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="TextBoxOutline" Style="{StaticResource Lookup.NameIcon}" />
+                                            <TextBox x:Name="DocumentSubject" MaxLength="1000" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Style="{StaticResource Lookup.NameText}" />
+                                        </DockPanel>
+                                    </Border>
+                                    <TextBlock Text="أيقونة المستند" Margin="0,12,0,3" />
+                                    <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=DocumentIcon}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="PaletteOutline" Style="{StaticResource Lookup.NameIcon}" />
+                                            <ComboBox x:Name="DocumentIcon" Style="{StaticResource Combo}" ItemTemplate="{StaticResource IconChoice}" />
+                                        </DockPanel>
+                                    </Border>
+                                    <dx:SimpleButton Click="Import_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="0,16,0,5">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="FileImportOutline" Width="20" Height="20" Margin="5" />
+                                            <TextBlock Text="إدراج ملف من الحاسوب" />
+                                        </StackPanel>
+                                    </dx:SimpleButton>
+                                    <TextBlock Text="الماسح الضوئي" Margin="0,12,0,3" />
+                                    <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=ScannerChoice}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="Scanner" Style="{StaticResource Lookup.NameIcon}" />
+                                            <ComboBox x:Name="ScannerChoice" Style="{StaticResource Combo}" />
+                                        </DockPanel>
+                                    </Border>
+                                    <UniformGrid Columns="2" Margin="0,6">
+                                        <dx:SimpleButton Click="RefreshScanners_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="3">
+                                            <StackPanel Orientation="Horizontal">
+                                                <icons:PackIconMaterial Kind="Refresh" Width="19" Height="19" Margin="4" />
+                                                <TextBlock Text="الماسحات" />
+                                            </StackPanel>
+                                        </dx:SimpleButton>
+                                        <dx:SimpleButton Click="Scan_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="3">
+                                            <StackPanel Orientation="Horizontal">
+                                                <icons:PackIconMaterial Kind="Scanner" Width="19" Height="19" Margin="4" />
+                                                <TextBlock Text="مسح" />
+                                            </StackPanel>
+                                        </dx:SimpleButton>
+                                    </UniformGrid>
+                                    <TextBlock x:Name="FileStatus" Text="لم يُرفق ملف" TextWrapping="Wrap" Margin="0,8" Foreground="#69758A" />
+                                    <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=AttachmentName}">
+                                        <DockPanel>
+                                            <icons:PackIconMaterial Kind="Paperclip" Style="{StaticResource Lookup.NameIcon}" />
+                                            <TextBox x:Name="AttachmentName" Style="{StaticResource Lookup.NameText}" IsReadOnly="True" mah:TextBoxHelper.Watermark="الملف المرفق" />
+                                        </DockPanel>
+                                    </Border>
+                                    <dx:SimpleButton x:Name="SaveDocumentButton" Click="SaveDocument_Click" Style="{StaticResource Dcms.PrimaryButton}" Margin="0,10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="ContentSaveOutline" Width="20" Height="20" Margin="5" />
+                                            <TextBlock Text="حفظ المستند" />
+                                        </StackPanel>
+                                    </dx:SimpleButton>
+                                </StackPanel>
+                            </ScrollViewer>
+                            <Grid Grid.Column="1" Background="#E8ECF3">
+                                <!-- عارض DCMS الكامل: أدوات الفتح والحفظ والطباعة والبحث والتنقل والتكبير والتعليقات. لا توجد أي أوامر بريد أو واتساب. -->
+                                <pdf:PdfViewerControl x:Name="PdfViewer" Language="ar-SA" ShowStartScreen="False" CommandBarStyle="Ribbon" NumberOfRecentFiles="0" DetachStreamOnLoadComplete="True" FlowDirection="LeftToRight" DocumentClosing="PdfViewer_DocumentClosing" ExceptionMessage="PdfViewer_ExceptionMessage" dx:ThemeManager.ThemeName="Win11Light">
+                                    <pdf:PdfViewerControl.CommandProvider>
+                                        <pdf:PdfCommandProvider>
+                                            <pdf:PdfCommandProvider.RibbonActions>
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.PreviousPage}" Property="{x:Static bars:BarItem.ContentProperty}" Value="السابق" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.PreviousPage}" Property="{x:Static bars:BarItem.HintProperty}" Value="انتقل للصفحة السابقة" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.NextPage}" Property="{x:Static bars:BarItem.ContentProperty}" Value="التالي" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.NextPage}" Property="{x:Static bars:BarItem.HintProperty}" Value="انتقل للصفحة التالية" />
+                                                <bars:UpdateAction ElementName="{x:Static pdf:DefaultPdfBarManagerItemNames.Find}" Property="{x:Static bars:BarItem.ContentProperty}" Value="البحث" />
+                                                <bars:UpdateAction ElementName="{x:Static pdf:DefaultPdfBarManagerItemNames.Find}" Property="{x:Static bars:BarItem.HintProperty}" Value="البحث عن نص" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.Close}" Property="{x:Static bars:BarItem.ContentProperty}" Value="إغلاق" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.SearchCheckCaseSensitive}" Property="{x:Static bars:BarItem.ContentProperty}" Value="حساسية حالة الأحرف" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.SearchCheckWholeWord}" Property="{x:Static bars:BarItem.ContentProperty}" Value="الكلمات الكاملة فقط" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.SearchClose}" Property="{x:Static bars:BarItem.ContentProperty}" Value="إغلاق البحث" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.Search}" Property="{x:Static bars:BarItem.ContentProperty}" Value="نص البحث" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.SearchNext}" Property="{x:Static bars:BarItem.ContentProperty}" Value="التالي" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.SearchPrevious}" Property="{x:Static bars:BarItem.ContentProperty}" Value="السابق" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.Zoom}" Property="{x:Static bars:BarItem.ContentProperty}" Value="التكبير والتصغير" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.ZoomIn}" Property="{x:Static bars:BarItem.ContentProperty}" Value="تكبير" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.ZoomOut}" Property="{x:Static bars:BarItem.ContentProperty}" Value="تصغير" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.ClockwiseRotate}" Property="{x:Static bars:BarItem.ContentProperty}" Value="تدوير مع عقارب الساعة" />
+                                                <bars:UpdateAction ElementName="{x:Static dv:DefaultBarManagerItemNames.Ribbon}" PropertyName="ShowApplicationButton" Value="False" />
+                                            </pdf:PdfCommandProvider.RibbonActions>
+                                        </pdf:PdfCommandProvider>
+                                    </pdf:PdfViewerControl.CommandProvider>
+                                    <pdf:PdfViewerControl.OutlinesViewerSettings><pdf:PdfOutlinesViewerSettings HideOutlinesViewer="True" /></pdf:PdfViewerControl.OutlinesViewerSettings>
+                                    <pdf:PdfViewerControl.AttachmentsViewerSettings><pdf:PdfAttachmentsViewerSettings HideAttachmentsViewer="True" /></pdf:PdfViewerControl.AttachmentsViewerSettings>
+                                    <pdf:PdfViewerControl.ThumbnailsViewerSettings><pdf:PdfThumbnailsViewerSettings HideThumbnailsViewer="True" /></pdf:PdfViewerControl.ThumbnailsViewerSettings>
+                                    <pdf:PdfViewerControl.CommentViewerSettings><pdf:PdfCommentViewerSettings HideCommentViewer="True" /></pdf:PdfViewerControl.CommentViewerSettings>
+                                </pdf:PdfViewerControl>
+                                <TextBlock x:Name="PreviewHint" Text="أدرج ملف PDF أو صورة، أو اسحب الملف هنا" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#69758A" IsHitTestVisible="False" />
+                            </Grid>
+                        </Grid>
+                    </DockPanel>
+                </Border>
+            </mah:Flyout>
+            <!--#endregion-->
+
+
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+    <Border Background="#F8F9FC" BorderBrush="#C9D3E6" BorderThickness="1" CornerRadius="20">
+        <DockPanel x:Name="Workspace">
+            <Border DockPanel.Dock="Top" Background="{StaticResource Workspace.Header}" CornerRadius="19,19,0,0" Padding="20,15">
+                            <!-- الشبكة LTR لضمان أن زر الإغلاق في الطرف الأيسر الفعلي، بينما النص عربي RTL. -->
+                            <Grid FlowDirection="LeftToRight">
+                                <dx:SimpleButton x:Name="CloseArchiveButton" HorizontalAlignment="Left" Click="Close_Click" Style="{StaticResource Dcms.WindowButton}" ToolTip="إغلاق الأرشيف" AutomationProperties.Name="إغلاق نافذة أرشيف المباني">
+                            <icons:PackIconMaterial Kind="Close" Width="24" Height="24" />
+                        </dx:SimpleButton>
+                                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" FlowDirection="RightToLeft">
+                        <icons:PackIconMaterial Kind="ArchiveOutline" Foreground="#EACD8C" Width="36" Height="36" Margin="0,0,14,0" />
+                        <StackPanel>
+                            <TextBlock x:Name="ArchiveTitle" Foreground="White" FontSize="24" Text="أرشيف المباني" />
+                            <TextBlock Text="صندوق الضمان الاجتماعي • الألبومات والمستندات" Foreground="#D7E1F3" />
+                        </StackPanel>
+                    </StackPanel>
+                            </Grid>
+            </Border>
+            <DockPanel DockPanel.Dock="Bottom" Margin="20,8">
+                <dx:SimpleButton DockPanel.Dock="Left" Click="Refresh_Click" Style="{StaticResource Dcms.PrimaryButton}">
+                    <StackPanel Orientation="Horizontal">
+                        <icons:PackIconMaterial Kind="Refresh" Width="20" Height="20" Margin="5" />
+                        <TextBlock Text="تحديث الأرشيف" />
+                    </StackPanel>
+                </dx:SimpleButton>
+                <TextBlock x:Name="Status" Text="انقر على المبنى لعرض ألبوماته" VerticalAlignment="Center" Foreground="#69758A" TextWrapping="Wrap" />
+            </DockPanel>
+            <Grid Margin="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Panel}">
+                    <DockPanel Margin="0,0,-13,0">
+                        <StackPanel DockPanel.Dock="Top">
+                            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource Contracts.Field}" Height="80" >
+                                <Grid Width="321">
+                                    <Grid.ColumnDefinitions>
+
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition  Height="30"/>
+                                        <RowDefinition  Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="المقر" x:Name="BuildingStats" Style="{StaticResource Contracts.Label}" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+
+                                    <icons:PackIconMaterial Grid.Row="1" Kind="OfficeBuildingOutline" Style="{StaticResource Contracts.Icon}" HorizontalAlignment="Center" Height="40" Margin="1,0,10,0"/>
+                                    <ComboBox Grid.Column="1" x:Name="BuildingSearch"
+   DisplayMemberPath="Title" SelectedValuePath="LookupId"
+   Style="{StaticResource Contracts.Combo}" mah:TextBoxHelper.Watermark="اختر المقر" 
+   AutomationProperties.Name="اختر المقر"
+   SelectionChanged="BuildingSearch_SelectionChanged" Margin="0,0,10,0" Grid.Row="1">
+                                        <ComboBox.Tag>
+                                            <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Tag" Mode="TwoWay" UpdateSourceTrigger="Explicit" NotifyOnValidationError="True" ValidatesOnDataErrors="True" ValidatesOnExceptions="True" ValidatesOnNotifyDataErrors="True">
+                                                <Binding.ValidationRules>
+                                                    <conv:ErrorRule />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </ComboBox.Tag>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
+                            <!-- يعرض اسم المقر المفتوح وأعداد ألبوماته ومستنداته بعد نقرة واحدة. -->
+                            <TextBlock x:Name="BuildingSummary" Visibility="Collapsed" TextAlignment="Center"
+                                       TextWrapping="Wrap" FontWeight="SemiBold" Foreground="#3559A0" Margin="8" />
+                        </StackPanel>
+                        <ListBox x:Name="Buildings" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" ItemContainerStyle="{StaticResource BuildingItem}" PreviewMouseLeftButtonUp="Building_Click">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Card}">
+                                        <StackPanel>
+                                            <icons:PackIconMaterial Kind="OfficeBuildingOutline" Width="32" Height="32" Foreground="#3559A0" HorizontalAlignment="Center" />
+                                            <TextBlock Text="{Binding Title}" TextWrapping="Wrap" TextAlignment="Center" FontWeight="SemiBold" Margin="0,8" />
+                                            <TextBlock Text="{Binding Subject}" TextWrapping="Wrap" TextAlignment="Center" FontSize="12" Foreground="#69758A" Margin="0,6,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource Panel}">
+                    <Grid>
+                        <DockPanel Margin="0,0,0,54">
+                            <StackPanel DockPanel.Dock="Top">
+                                <TextBlock x:Name="AlbumsHeading" Text="ألبومات المبنى" Style="{StaticResource Heading}" />
+                                <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=AlbumSearch}">
+                                    <DockPanel>
+                                        <icons:PackIconMaterial Kind="Magnify" Style="{StaticResource Lookup.NameIcon}" />
+                                        <TextBox x:Name="AlbumSearch" Style="{StaticResource Lookup.NameText}" TextChanged="Filter_Changed" mah:TextBoxHelper.Watermark="اسم الألبوم" />
+                                    </DockPanel>
+                                </Border>
+                                <Border Style="{StaticResource Field}" Margin="0,7,0,0" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=AlbumSearchDate}">
+                                    <DockPanel>
+                                        <icons:PackIconMaterial Kind="CalendarSearch" Style="{StaticResource Lookup.NameIcon}" />
+                                        <DatePicker x:Name="AlbumSearchDate" Style="{StaticResource Date}" SelectedDateChanged="Filter_Changed" ToolTip="تصفية بتاريخ الإنشاء؛ امسح التاريخ لإلغاء التصفية" />
+                                    </DockPanel>
+                                </Border>
+                                <DockPanel Margin="0,8">
+                                    <Button DockPanel.Dock="Left" Click="ClearAlbumFilter_Click" ToolTip="إلغاء فلاتر الألبومات">
+                                        <icons:PackIconMaterial Kind="FilterRemoveOutline" Width="19" Height="19" />
+                                    </Button>
+                                    <TextBlock x:Name="AlbumStats" VerticalAlignment="Center" Foreground="#69758A" />
+                                </DockPanel>
+                                <WrapPanel>
+                                    <Button Click="SelectAlbums_Click" Margin="2">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="CheckboxMultipleMarkedOutline" Width="16" Height="16" Margin="3" />
+                                            <TextBlock Text="تحديد الكل" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Click="ClearAlbums_Click" Margin="2">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="CheckboxMultipleBlankOutline" Width="16" Height="16" Margin="3" />
+                                            <TextBlock Text="إلغاء التحديد" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Click="DeleteSelectedAlbums_Click" Foreground="#AD3E48" Margin="2">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="TrashCanOutline" Width="17" Height="17" Margin="3" />
+                                            <TextBlock Text="حذف المحدد" />
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl x:Name="Albums" ItemTemplate="{StaticResource AlbumCard}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel HorizontalAlignment="Center" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </DockPanel>
+                        <Button x:Name="AddAlbumButton" Style="{StaticResource AddButton}" Click="AddAlbum_Click" Width="48" Height="48" HorizontalAlignment="Left" VerticalAlignment="Bottom" ToolTip="إضافة ألبوم" AutomationProperties.Name="إضافة ألبوم" Background="#3559A0" Foreground="White">
+                            <icons:PackIconMaterial Kind="Plus" Width="28" Height="28" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource Panel}">
+                    <Grid>
+                        <DockPanel Margin="0,0,0,54">
+                            <StackPanel DockPanel.Dock="Top">
+                                <TextBlock x:Name="DocumentsHeading" Text="مستندات الألبوم" Style="{StaticResource Heading}" />
+                                <Border Style="{StaticResource Field}" Tag="{Binding (conv:FieldFeedback.HasValue), ElementName=DocumentSearch}">
+                                    <DockPanel>
+                                        <icons:PackIconMaterial Kind="Magnify" Style="{StaticResource Lookup.NameIcon}" />
+                                        <TextBox x:Name="DocumentSearch" Style="{StaticResource Lookup.NameText}" TextChanged="Filter_Changed" mah:TextBoxHelper.Watermark="بحث بعنوان المستند أو موضوعه" />
+                                    </DockPanel>
+                                </Border>
+                                <TextBlock x:Name="DocumentStats" Margin="5,10" Foreground="#69758A" />
+                                <WrapPanel>
+                                    <Button Click="SelectDocuments_Click" Margin="2">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="CheckboxMultipleMarkedOutline" Width="16" Height="16" Margin="3" />
+                                            <TextBlock Text="تحديد الكل" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Click="ClearDocuments_Click" Margin="2">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="CheckboxMultipleBlankOutline" Width="16" Height="16" Margin="3" />
+                                            <TextBlock Text="إلغاء التحديد" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Click="DeleteSelectedDocuments_Click" Foreground="#AD3E48" Margin="2">
+                                        <StackPanel Orientation="Horizontal">
+                                            <icons:PackIconMaterial Kind="TrashCanOutline" Width="17" Height="17" Margin="3" />
+                                            <TextBlock Text="حذف المحدد" />
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                                <TextBlock Text="نقرة للمعاينة • نقرتان للتعديل" Foreground="#69758A" FontSize="12" Margin="4,8" />
+                            </StackPanel>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl x:Name="Documents" ItemTemplate="{StaticResource DocumentCard}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel HorizontalAlignment="Center" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </DockPanel>
+                        <Button x:Name="AddDocumentButton" Style="{StaticResource AddButton}" Click="AddDocument_Click" Width="48" Height="48" HorizontalAlignment="Left" VerticalAlignment="Bottom" ToolTip="إضافة مستند" AutomationProperties.Name="إضافة مستند" Background="#3559A0" Foreground="White">
+                            <icons:PackIconMaterial Kind="Plus" Width="28" Height="28" />
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </Border>
+</mah:MetroWindow>

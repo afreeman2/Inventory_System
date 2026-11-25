@@ -56,12 +56,17 @@ namespace Inventory_System.MainWindows
         // ننهي مسار النقرة أو الاختصار قبل بدء الحوار، ونمنع تكرار الفتح مع النقر السريع.
         private void OpenAccountWindow(string title, Func<Window> createWindow, Action? onClosed = null)
         {
+            T_SystemUser this_us = null;
             if (openingAccountWindow) return;
             openingAccountWindow = true;
             _ = Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
             {
                 try
                 {
+                    this_us = (T_SystemUser)cboUserFullName.SelectedItem;
+                    App.usname = cboUserFullName.Text;
+                    App.login_user = this_us;
+                    App.appuser = this_us;
                     if (!IsVisible) return;
                     var window = createWindow();
                     window.Owner = this;

@@ -87,6 +87,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[T_OwnedPremises_Documents]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[T_OwnedPremises_Insuc]",
          "ObjectType": 0
       },
@@ -116,6 +120,10 @@
       },
       {
          "Name": "[dbo].[T_RentalPremises_Contrect]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_RentalPremises_Documents]",
          "ObjectType": 0
       },
       {
@@ -151,6 +159,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[T_Sub_Doc]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[T_Sub_Doc_rental]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[T_Sub_PHones_Building]",
          "ObjectType": 0
       },
@@ -165,10 +181,6 @@
       {
          "Name": "[dbo].[V_PHONE]",
          "ObjectType": 3
-      },
-      {
-         "Name": "[dbo].[p_execute]",
-         "ObjectType": 1
       }
    ],
    "UiHint": null,

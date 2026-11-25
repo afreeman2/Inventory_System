@@ -183,108 +183,7 @@ namespace Inventory_System.MainWindows
 
         #endregion
 
-        private void SETSHORTCUT()
-        {
-            //if ((App.appuser?.forinout == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F7));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, inout_Menu_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-
-            //if ((App.appuser?.for_work_his == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F5));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, work_his_Menu_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-
-            //if ((App.appuser?.forbanks == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F6));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, Bank_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-
-            //if ((App.appuser?.forbranch_bank == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F8));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, Branch_Bank_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-            //if ((App.appuser?.forranks == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F9));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, rank_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-            //if ((App.appuser?.for_ref == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F12));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, ref_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-            //if ((App.appuser?.forres == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.E, ModifierKeys.Control));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, rce_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-            //if ((App.appuser?.fornat == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, nat_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-
-            //if ((App.appuser?.for_deb == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, deb_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-
-
-            //SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
-            //CommandBindings.Add(new CommandBinding(SaveCommand_AltS, man_mnue_Click));
-            //SaveCommand_AltS = new RoutedCommand();
-
-
-            //if ((App.appuser?.for_report == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.C, ModifierKeys.Control));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, report_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-            //if ((App.appuser?.for_virwo == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.D, ModifierKeys.Control));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, viewo_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-            //if ((App.appuser?.foruser == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F10));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, opt_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-            //if ((App.appuser?.fordebplace == true))
-            //{
-            //    SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.G, ModifierKeys.Control));
-            //    CommandBindings.Add(new CommandBinding(SaveCommand_AltS, dis_place_mnue_Click));
-            //    SaveCommand_AltS = new RoutedCommand();
-            //}
-
-
-
-            //SaveCommand_AltS.InputGestures.Add(new KeyGesture(Key.F11));
-            //CommandBindings.Add(new CommandBinding(SaveCommand_AltS, cha_Click));
-            //SaveCommand_AltS = new RoutedCommand();
-
-
-        }
-
-
+   
         private void timer_Tick(object sender, EventArgs e)
         {
             ltim.Text = DateTime.Now.ToString("hh:mm:ss");
@@ -294,22 +193,7 @@ namespace Inventory_System.MainWindows
 
         private async void close_Click(object sender, RoutedEventArgs e)
         {
-            //MetroDialogOptions.ColorScheme = MetroDialogColorScheme.Accented;
-
-            //var mySettings = new MetroDialogSettings();
-
-            //mySettings.AffirmativeButtonText = "نعم";
-            //mySettings.NegativeButtonText = "لا";
-
-            //mySettings.DialogMessageFontSize = 18;
-            //mySettings.DialogTitleFontSize = 18;
-            //mySettings.AnimateShow = true;
-
-
-            //MessageDialogResult result = await this.ShowMessageAsync(this.Title, "هل أنت متأكد من إغلاق المنظومة ؟ ", MessageDialogStyle.AffirmativeAndNegative, mySettings);
-            //if (result != MessageDialogResult.Negative)
-            //    App.Current.Shutdown();
-
+           
             Close();
 
 
@@ -382,35 +266,6 @@ namespace Inventory_System.MainWindows
         }
 
 
-        //private void AccentSelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    System.Collections.Generic.IEnumerable<MahApps.Metro.Accent> color = ThemeManager.Accents;
-        //    var selectedAccent = color.ElementAt((int)AccentSelector.SelectedIndex);
-
-        //    Tuple<AppTheme, Accent> theme = null;
-        //    if (selectedAccent != null)
-        //        theme = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
-        //    ThemeManager.ChangeAppStyle(System.Windows.Application.Current, selectedAccent, theme.Item1);
-        //    string sq = "select * from T_Color_Chose where user_id=" + Module1.us_id;
-        //    SqlCommand cm = new SqlCommand(sq, Module1.con);
-        //    SqlDataReader rd = cm.ExecuteReader();
-        //    if (rd.Read())
-        //    {
-        //        rd.Close();
-        //        sq = "update  T_Color_Chose set color_id=" + (int)AccentSelector.SelectedIndex + " where user_id=" + Module1.us_id;
-        //        cm = new SqlCommand(sq, Module1.con);
-        //        cm.ExecuteNonQuery();
-        //    }
-        //    else
-        //    {
-        //        rd.Close();
-        //        sq = "insert into  T_Color_Chose (color_id,user_id)values(" + (int)AccentSelector.SelectedIndex + "," + Module1.us_id + ")";
-        //        cm = new SqlCommand(sq, Module1.con);
-        //        cm.ExecuteNonQuery();
-        //    }
-        //    rd.Close();
-        //    AccentSelector.Focus();
-        //}
 
         private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -428,12 +283,8 @@ namespace Inventory_System.MainWindows
             //'عرض إصدار المنظومة
             vesion.Text = "الإصدار " + DisplayVersion;
 
-            //'*****************
-            //'عرض تاريخ اليوم
-
-            //'********************
-            //'تفعيل إختصارات الشاشة
-            SETSHORTCUT();
+     
+           
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += timer_Tick;
             timer.Start();

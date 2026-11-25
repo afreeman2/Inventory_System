@@ -9,13 +9,15 @@ public partial class T_furniture_Class
 {
     public int Class_id { get; set; }
 
-    public short Location_ID { get; set; }
+    public int Location_ID { get; set; }
 
-    public short Branch_ID { get; set; }
+    public int Branch_ID { get; set; }
 
     public string Location { get; set; }
 
     public string Class_name { get; set; }
 
     public int class_value { get; set; }
+
+    public virtual ICollection<T_Furniture_Type> T_Furniture_Types { get; set; } = new List<T_Furniture_Type>();
 }

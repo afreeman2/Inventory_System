@@ -30,7 +30,10 @@ namespace Inventory_System
         public static int mid;
         public static bool is_but = false;
         public static T_Location location { get; set; }
-        public static ObservableCollection<T_Section> _listclass { get; set; }
+        public static ObservableCollection<T_Benef> _listbenef { get; set; }
+        public static ObservableCollection<T_Inventory_Location> _listbuilding { get; set; }
+      
+
         public static T_SystemUser login_user { get; set; }
         public static string Branch_Name { get; set; }
         public static T_SystemUser appuser { get; set; }

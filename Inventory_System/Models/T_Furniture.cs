@@ -11,7 +11,7 @@ public partial class T_Furniture
 
     public string DataDesc { get; set; }
 
-    public short? Build_ID { get; set; }
+    public int? Build_ID { get; set; }
 
     public int Location_ID { get; set; }
 
@@ -24,4 +24,8 @@ public partial class T_Furniture
     public DateOnly? doc_date { get; set; }
 
     public int? fur_type { get; set; }
+
+    public virtual ICollection<T_Furniture_List> T_Furniture_Lists { get; set; } = new List<T_Furniture_List>();
+
+    public virtual T_Inventory_Location T_Inventory_Location { get; set; }
 }

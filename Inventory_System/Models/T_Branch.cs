@@ -12,4 +12,6 @@ public partial class T_Branch
     public string Branch { get; set; }
 
     public bool? st { get; set; }
+
+    public virtual ICollection<T_Location> T_Locations { get; set; } = new List<T_Location>();
 }

@@ -1,0 +1,87 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
+    xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+    xmlns:dxet="http://schemas.devexpress.com/winfx/2008/xaml/editors/themekeys"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:feedback="clr-namespace:Inventory_System.converts">
+    <!-- إطار واحد وأيقونة داخلية مثل مرجع المستخدم؛ تبقى حالة الامتلاء والتحقق على كامل الخانة. -->
+    <Style x:Key="Lookup.NameField" TargetType="Border" BasedOn="{StaticResource Dcms.IconField}">
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="MinHeight" Value="46" />
+        <Setter Property="Padding" Value="6,0" />
+        <Style.Triggers>
+            <!-- Tag في إطار الخانة ينقل حالة امتلاء محررها؛ يبقى Tag الخاص بالمحرر للتحقق الأصلي. -->
+            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
+                <Setter Property="Background" Value="#E9EEF8" />
+                <Setter Property="BorderBrush" Value="#A4B5D6" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="Lookup.NameIcon" TargetType="icons:PackIconMaterial">
+        <Setter Property="Width" Value="27" />
+        <Setter Property="Height" Value="27" />
+        <Setter Property="Margin" Value="7,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{StaticResource Dcms.Primary}" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Focusable" Value="False" />
+    </Style>
+    <!-- نحتفظ بجزء التحرير الأصلي ووظائفه، ونزيل حد النص الداخلي وخط التركيز المكرر فقط. -->
+    <ControlTemplate x:Key="Lookup.FlatTextTemplate" TargetType="TextBox">
+        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Background="Transparent" VerticalAlignment="Center" Focusable="False" />
+    </ControlTemplate>
+    <Style x:Key="Lookup.NameSearch" TargetType="dxg:GridSearchControl">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FlowDirection" Value="RightToLeft" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="ShowNullTextIfFocused" Value="True" />
+        <Setter Property="feedback:FieldFeedback.Enabled" Value="True" />
+        <Setter Property="Validation.ErrorTemplate" Value="{StaticResource Validation.FieldError}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <!-- نحافظ على محرر DevExpress وقائمة سجل البحث، داخل إطار الخانة الخارجي فقط. -->
+                <ControlTemplate TargetType="dxg:GridSearchControl">
+                    <Grid>
+                        <dxe:ComboBoxEdit x:Name="editor" ShowBorder="False" BorderThickness="0" Background="Transparent"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="{TemplateBinding FontSize}"
+                            FontWeight="{TemplateBinding FontWeight}" Foreground="{TemplateBinding Foreground}"
+                            EditValue="{Binding SearchText, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            ItemsSource="{Binding MRU, RelativeSource={RelativeSource TemplatedParent}}" NullText="" ShowNullTextIfFocused="True">
+                            <dxe:ComboBoxEdit.EditTemplate>
+                                <ControlTemplate>
+                                    <TextBox x:Name="PART_Editor" Style="{DynamicResource {dxet:TextEditThemeKey ResourceKey=TextStyle}}"
+                                        Template="{StaticResource Lookup.FlatTextTemplate}" BorderThickness="0" Background="Transparent"
+                                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                                </ControlTemplate>
+                            </dxe:ComboBoxEdit.EditTemplate>
+                        </dxe:ComboBoxEdit>
+                        <TextBlock x:Name="Hint" Text="{TemplateBinding NullText}" Foreground="#98A2B3" VerticalAlignment="Center"
+                            TextAlignment="Center" Margin="22,0" IsHitTestVisible="False" Visibility="Collapsed" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="SearchText" Value="{x:Null}"><Setter TargetName="Hint" Property="Visibility" Value="Visible" /></Trigger>
+                        <Trigger Property="SearchText" Value=""><Setter TargetName="Hint" Property="Visibility" Value="Visible" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Lookup.NameText" TargetType="TextBox" BasedOn="{StaticResource MahApps.Styles.TextBox}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="4,0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="mah:TextBoxHelper.WatermarkAlignment" Value="Center" />
+        <Setter Property="feedback:FieldFeedback.Enabled" Value="True" />
+    </Style>
+</ResourceDictionary>

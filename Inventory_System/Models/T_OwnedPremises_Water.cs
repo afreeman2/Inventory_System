@@ -34,4 +34,6 @@ public partial class T_OwnedPremises_Water
     public DateOnly From_Date { get; set; }
 
     public DateOnly To_Date { get; set; }
+
+    public virtual T_OwnedPremise T_OwnedPremise { get; set; }
 }

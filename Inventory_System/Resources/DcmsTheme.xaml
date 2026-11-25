@@ -4,7 +4,7 @@
                     xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
                       xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
   xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
-                    xmlns:local="clr-namespace:Inventory_System.viewo_Model">
+                    xmlns:local="clr-namespace:Inventory_System.viewo_Model" xmlns:feedback="clr-namespace:Inventory_System.converts">
     <!-- DCMS layout language, with a royal navy, ivory and muted gold palette. -->
     <SolidColorBrush x:Key="Dcms.Primary" Color="#3559A0"/>
     <SolidColorBrush x:Key="Dcms.Deep" Color="#172747"/>
@@ -23,6 +23,8 @@
         <GradientStop Color="#324D82" Offset="1"/>
     </LinearGradientBrush>
     <Style x:Key="Dcms.IconField" TargetType="Border">
+        <!-- يحدد هذا الإطار مساحة التحقق الكاملة للخانة وأيقونتها. -->
+        <Setter Property="feedback:FieldFeedback.IsFieldSurface" Value="True"/>
         <Setter Property="local:InputFieldState.Enabled" Value="True"/>
         <Setter Property="Background" Value="#FCFBF8"/>
         <Setter Property="BorderBrush" Value="#CED7E6"/>
@@ -51,7 +53,7 @@
         <Setter Property="MinHeight" Value="36"/>
         <Setter Property="Margin" Value="3,0"/>
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="Background" Value="#22FFFFFF"/>
+        <Setter Property="Background" Value="#32DF6363"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style x:Key="Dcms.PrimaryButton" TargetType="dx:SimpleButton" BasedOn="{StaticResource Modern.ActionButton}">
@@ -100,6 +102,8 @@
         <Setter Property="Foreground" Value="#AF3C42"/>
     </Style>
     <Style x:Key="Dcms.Field" TargetType="Border">
+        <!-- يحدد هذا الإطار مساحة التحقق الكاملة للخانة وأيقونتها. -->
+        <Setter Property="feedback:FieldFeedback.IsFieldSurface" Value="True"/>
         <Setter Property="Background" Value="#FAFBFE"/>
         <Setter Property="BorderBrush" Value="#D1D9E8"/>
         <Setter Property="BorderThickness" Value="1"/>

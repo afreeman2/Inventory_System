@@ -9,11 +9,11 @@ public partial class T_Furniture_List
 {
     public long Furniture_ID { get; set; }
 
-    public short Branch_ID { get; set; }
+    public int Branch_ID { get; set; }
 
-    public short Location_ID { get; set; }
+    public int Location_ID { get; set; }
 
-    public int CountNo { get; set; }
+    public long CountNo { get; set; }
 
     public DateOnly Date_Modify { get; set; }
 
@@ -21,11 +21,19 @@ public partial class T_Furniture_List
 
     public short Secti_ID { get; set; }
 
-    public short Furniture_Type_ID { get; set; }
+    public int Furniture_Type_ID { get; set; }
 
     public string Location { get; set; }
 
     public long ID { get; set; }
 
     public string notes { get; set; }
+
+    public virtual T_Furniture T_Furniture { get; set; }
+
+    public virtual T_Furniture_Type T_Furniture_Type { get; set; }
+
+    public virtual T_Manage T_Manage { get; set; }
+
+    public virtual T_Section T_Section { get; set; }
 }

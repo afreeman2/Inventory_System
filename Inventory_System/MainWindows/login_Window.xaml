@@ -1,4 +1,4 @@
-﻿<mah:MetroWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<mah:MetroWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
@@ -12,23 +12,14 @@
                  
 x:Class="Inventory_System.MainWindows.login_Window" 
                  dx:ThemeManager.ThemeName="Win11Light"
-                 Title="تسجيل الدخول | الخدمات والصيانة" Width="1080" Height="720" MinWidth="900" MinHeight="620" Loaded="MetroWindow_Loaded" WindowStartupLocation="CenterScreen" WindowStyle="None" AllowsTransparency="True" ResizeMode="NoResize" ShowTitleBar="False" ShowCloseButton="False" ShowMinButton="False" ShowMaxRestoreButton="False" TitleAlignment="Center" Background="Transparent" BorderThickness="0" GlowBrush="{x:Null}" FlowDirection="RightToLeft" FontFamily="Segoe UI" FontSize="14" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display"  WindowButtonCommandsOverlayBehavior="Never" NonActiveGlowBrush="{x:Null}" SizeToContent="Manual">
+                 Title="تسجيل الدخول | الحصر" Width="1080" Height="720" MinWidth="900" MinHeight="620" Loaded="MetroWindow_Loaded" WindowStartupLocation="CenterScreen" WindowStyle="None" AllowsTransparency="True" ResizeMode="NoResize" ShowTitleBar="False" ShowCloseButton="False" ShowMinButton="False" ShowMaxRestoreButton="False" TitleAlignment="Center" Background="Transparent" BorderThickness="0" GlowBrush="{x:Null}" FlowDirection="RightToLeft" FontFamily="Segoe UI" FontSize="14" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display"  WindowButtonCommandsOverlayBehavior="Never" NonActiveGlowBrush="{x:Null}" SizeToContent="Manual">
     <mah:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Resources/DcmsTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <SolidColorBrush x:Key="Client.Ink" Color="#233B54"/>
-            <ControlTemplate x:Key="Client.Error">
-                <Grid>
-                    <Border BorderBrush="#C62836" BorderThickness="2" CornerRadius="7">
-                        <AdornedElementPlaceholder/>
-                    </Border>
-                    <Border Width="18" Height="18" Background="#C62836" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-6,-6,0,0">
-                        <TextBlock Text="!" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    </Border>
-                </Grid>
-            </ControlTemplate>
+            <!-- شاشة الدخول تستعمل قالب التحقق المشترك مع بقية المشروع. -->
             <Style x:Key="Client.Input" TargetType="Control">
                 <Setter Property="local:FieldFeedback.Enabled" Value="True"/>
                 <Setter Property="MinHeight" Value="44"/>
@@ -37,29 +28,15 @@ x:Class="Inventory_System.MainWindows.login_Window"
                 <Setter Property="Background" Value="#F7F9FC"/>
                 <Setter Property="BorderBrush" Value="#B8C9DB"/>
                 <Setter Property="Padding" Value="10,6"/>
-                <Setter Property="Validation.ErrorTemplate" Value="{StaticResource Client.Error}"/>
+                <Setter Property="Validation.ErrorTemplate" Value="{StaticResource Validation.FieldError}"/>
                 <Style.Triggers>
                     <Trigger Property="local:FieldFeedback.HasValue" Value="True">
                         <Setter Property="Background" Value="#DFE8F3"/>
                     </Trigger>
-                    <Trigger Property="Validation.HasError" Value="True">
-                        <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
-                    </Trigger>
+
                 </Style.Triggers>
             </Style>
-            <Style x:Key="Client.ErrorText" TargetType="TextBlock">
-                <Setter Property="Visibility" Value="Collapsed"/>
-                <Setter Property="Foreground" Value="#BD2535"/>
-                <Setter Property="FontSize" Value="12"/>
-                <Setter Property="TextWrapping" Value="Wrap"/>
-                <Setter Property="Margin" Value="0,5,0,0"/>
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding Tag.(Validation.HasError), RelativeSource={RelativeSource Self}}" Value="True">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Setter Property="Text" Value="{Binding Tag.(Validation.Errors)[0].ErrorContent, RelativeSource={RelativeSource Self}}"/>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
+
 
             <Style x:Key="Client.Label" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{StaticResource Client.Ink}"/>
@@ -99,7 +76,7 @@ x:Class="Inventory_System.MainWindows.login_Window"
                         <Image Source="pack://application:,,,/Inventory_System;component/Resources/ssf Logo.jpg" Margin="5" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="الخدمات والصيانة" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Dcms.Ink}"/>
+                        <TextBlock Text="الحصر" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Dcms.Ink}"/>
                         <TextBlock Text="صندوق الضمان الاجتماعي" FontSize="13" Foreground="{StaticResource Dcms.Muted}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </StackPanel>
@@ -118,7 +95,6 @@ x:Class="Inventory_System.MainWindows.login_Window"
                             <dxe:ComboBoxEdit dx:ThemeManager.ThemeName="Win11Light" x:Name="cboUserFullName" Style="{StaticResource Client.Input}" ShowError="False" ShowErrorToolTip="False" Grid.Column="1" FontSize="16" Height="48" ItemsSource="{Binding T_SystemUser}" DisplayMember="User_Name" ValueMember="User_ID" IsTextEditable="False" ImmediatePopup="True" NullText="اختر المستخدم" ShowBorder="False" Background="Transparent" BorderThickness="0" Padding="8,0" Foreground="{StaticResource Dcms.Ink}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" TabIndex="0" PreviewKeyUp="cboUserFullName_PreviewKeyUp" SelectedIndexChanged="cboUserFullName_SelectionChanged" AutomationProperties.Name="اسم المستخدم"/>
                         </Grid>
                     </Border>
-                    <TextBlock x:Name="UserError" Style="{StaticResource Client.ErrorText}" Tag="{Binding ElementName=cboUserFullName}"/>
                     <TextBlock Text="كلمة المرور" Style="{StaticResource Client.Label}" Margin="0,24,0,8"/>
                     <Grid IsKeyboardFocusWithinChanged="PasswordArea_FocusChanged">
                         <Grid.ColumnDefinitions>
@@ -223,7 +199,6 @@ Unchecked="PasswordVisibility_Changed">
                             </ToggleButton.Style>
                         </ToggleButton>
                     </Grid>
-                    <TextBlock x:Name="PasswordError" Style="{StaticResource Client.ErrorText}" Tag="{Binding ElementName=txbPassword}"/>
                     <!-- مساحة ثابتة للتنبيه كي لا يتحرك زر الدخول عند تبديل Caps Lock. -->
                     <TextBlock x:Name="PasswordCapsLockWarning" Text="مفتاح Caps Lock مفعّل" Visibility="Hidden"
                  Height="20" Padding="0,3,0,0" FontSize="12" Foreground="#805008"/>
